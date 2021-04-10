@@ -1,4 +1,4 @@
-#include "pendant2021-stm32wl.h"
+#include "user_app.h"
 #include "main.h"
 #include "app_lorawan.h"
 
