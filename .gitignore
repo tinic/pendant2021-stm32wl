@@ -34,3 +34,6 @@
 build/*
 .vscode/.*
 build*/*
+
+STM32CubeIDE/Debug/*
+STM32CubeIDE/Release/*
