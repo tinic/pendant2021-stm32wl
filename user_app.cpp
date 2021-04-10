@@ -360,3 +360,5 @@ void decode_packet(const uint8_t *packet, uint32_t len) {
 void system_update() {
 }
 
+void system_process() {
+}

@@ -24,7 +24,11 @@
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
 #include <stdio.h>
-#include "pendant2021-stm32wl.h"
+
+#ifdef USER_APP_BUILD
+#include "user_app.h"
+#endif  // #ifdef USER_APP_BUILD
+
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -133,6 +137,9 @@ int main(void)
     MX_LoRaWAN_Process();
 
     /* USER CODE BEGIN 3 */
+#ifdef USER_APP_BUILD
+    system_process();
+#endif  // #ifdef USER_APP_BUILD
   }
   /* USER CODE END 3 */
 }

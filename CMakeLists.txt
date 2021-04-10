@@ -48,6 +48,7 @@ set(RELEASE_FLAGS
     -Os)
 
 set(DEFINITIONS
+    USER_APP_BUILD
     USE_HAL_DRIVER 
     CORE_CM4 
     STM32WLE5xx)
@@ -95,8 +96,8 @@ file(GLOB_RECURSE STM32CUBEIDE_SRC ${PROJECT_SOURCE_DIR}/STM32CubeIDE/Drivers/ST
 file(GLOB_RECURSE STM32CUBEIDE_SRC ${PROJECT_SOURCE_DIR}/STM32CubeIDE/*.c)
 
 add_executable(${PROJECT_NAME}.elf 
+    ${PROJECT_SOURCE_DIR}/user_app.cpp 
     ${PROJECT_SOURCE_DIR}/STM32CubeIDE/Core/Startup/startup_stm32wle5ccux.s 
-    ${PROJECT_SOURCE_DIR}/STM32CubeIDE/Core/Src/pendant2021-stm32wl.cpp 
     ${STM32CUBEIDE_SRC})
 
 # Generate version.h

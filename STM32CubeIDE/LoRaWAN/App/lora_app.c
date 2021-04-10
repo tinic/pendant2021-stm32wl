@@ -27,10 +27,15 @@
 
 /* USER CODE BEGIN Includes */
 #include <stdio.h>
+
 #include "stm32_lpm.h"
 #include "utilities_def.h"
 #include "lora_info.h"
-#include "pendant2021-stm32wl.h"
+
+#ifdef USER_APP_BUILD
+#include "user_app.h"
+#endif  // #ifdef USER_APP_BUILD
+
 /* USER CODE END Includes */
 
 /* External variables ---------------------------------------------------------*/
@@ -204,7 +209,12 @@ static void JoinNetwork() {
 }
 
 static void SendTxData(void) {
+#ifdef USER_APP_BUILD
 	TxData.Buffer = (uint8_t *)encode_packet(&TxData.BufferSize);
+#else  //#ifdef USER_APP_BUILD
+	TxData.Buffer = 0;
+	TxData.BufferSize = 0;
+#endif  // #ifdef PENDANT_BUILD
 	UTIL_TIMER_Time_t nextTxIn = 0;
 	if (LORAMAC_HANDLER_SUCCESS == LmHandlerSend(&TxData, LORAWAN_DEFAULT_CONFIRMED_MSG_STATE, &nextTxIn, false)) {
 #ifdef DEBUG_MSG
@@ -215,7 +225,9 @@ static void SendTxData(void) {
 		printf("SendTxData Fail!\n");
 #endif // #ifdef DEBUG_MSG
 	}
+#ifdef USER_APP_BUILD
 	system_update();
+#endif  // #ifdef USER_APP_BUILD
 }
 
 /* USER CODE END PrFD */
@@ -257,8 +269,10 @@ static void OnRxData(LmHandlerAppData_t *appData, LmHandlerRxParams_t *params)
 			}
 			break;
 			case LORAWAN_USER_APP_PORT: {
+#ifdef USER_APP_BUILD
 				decode_packet(appData->Buffer, appData->BufferSize);
 				system_update();
+#endif  // #ifdef USER_APP_BUILD
 			}
 			break;
 			default: {

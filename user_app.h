@@ -12,6 +12,7 @@ extern "C" {
 const uint8_t *encode_packet(uint8_t *len);
 void decode_packet(const uint8_t *packet, uint32_t len);
 void system_update();
+void system_process();
 
 #ifdef __cplusplus
 }
