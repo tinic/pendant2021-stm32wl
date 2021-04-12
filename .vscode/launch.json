@@ -1,0 +1,19 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "cwd": "${workspaceRoot}",
+            "executable": "build/pendant2021-stm32wl.elf",
+            "name": "Debug",
+            "request": "launch",
+            "type": "cortex-debug",
+            "servertype": "openocd",
+            "device": "STM32WLE5CC",
+            "interface": "swd",
+            "configFiles": [
+                "interface/stlink-v2.cfg",
+                "target/stm32wlx.cfg"
+            ]
+        }
+    ]
+}
