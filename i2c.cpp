@@ -67,6 +67,10 @@ void i2c::init() {
 	memset(this, 0, sizeof(i2c));
 	update();
 
+    for (size_t c = 0; c < sizeof(i2cRegBank); c++) {
+        i2cRegBank[c] = c; 
+    }
+
     HAL_I2C_EnableListen_IT(&hi2c2);
     i2cStatus = State::Wait;
 }
