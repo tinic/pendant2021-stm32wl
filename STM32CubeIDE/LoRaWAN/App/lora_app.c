@@ -137,16 +137,6 @@ static LmHandlerParams_t LmHandlerParams =
 void LoRaWAN_Init(void)
 {
   /* USER CODE BEGIN LoRaWAN_Init_1 */
-  uint8_t devEui[8];
-  GetUniqueId(devEui);
-
-  printf("\r\n**************************************************************");
-  printf("\r\nDevEUI: ");
-  for(size_t c = 0; c < 8; c++) {
-	  printf("%02x",devEui[c]);
-  }
-  printf("\r\n");
-
   UTIL_SEQ_RegTask((1 << CFG_SEQ_Task_LmHandlerProcess), UTIL_SEQ_RFU, LmHandlerProcess);
   UTIL_SEQ_RegTask((1 << CFG_SEQ_Task_JoinNetworkTimer), UTIL_SEQ_RFU, JoinNetwork);
   UTIL_SEQ_RegTask((1 << CFG_SEQ_Task_SendTxTimer), UTIL_SEQ_RFU, SendTxData);
@@ -163,19 +153,19 @@ void LoRaWAN_Init(void)
   MibRequestConfirm_t mibReq;
   memset(&mibReq, 0, sizeof(mibReq));
 
-  // AppKey
-  uint8_t appKey[16];
-  memcpy(appKey, devEui, 8);
-  memcpy(appKey+8, devEui, 8);
-
-  printf("AppKey: ");
-  for(size_t c = 0; c < 16; c++) {
-	  printf("%02x",appKey[c]);
-  }
-  printf("\r\n");
+#ifdef USER_APP_BUILD
+  static uint8_t networkKey[16];
+  lora_get_network_key(&networkKey[0], sizeof(networkKey));
   mibReq.Type = MIB_NWK_KEY;
-  mibReq.Param.NwkKey = appKey;
+  mibReq.Param.NwkKey = networkKey;
   LoRaMacMibSetRequestConfirm(&mibReq);
+
+  static uint8_t joinEui[8];
+  lora_get_join_eui(&joinEui[0], sizeof(joinEui));
+  mibReq.Type = MIB_JOIN_EUI;
+  mibReq.Param.JoinEui = joinEui;
+  LoRaMacMibSetRequestConfirm(&mibReq);
+#endif  // #ifdef USER_APP_BUILD
 
   LmHandlerJoin(ActivationType);
 
@@ -225,9 +215,6 @@ static void SendTxData(void) {
 		printf("SendTxData Fail!\n");
 #endif // #ifdef DEBUG_MSG
 	}
-#ifdef USER_APP_BUILD
-	system_update();
-#endif  // #ifdef USER_APP_BUILD
 }
 
 /* USER CODE END PrFD */
@@ -271,7 +258,6 @@ static void OnRxData(LmHandlerAppData_t *appData, LmHandlerRxParams_t *params)
 			case LORAWAN_USER_APP_PORT: {
 #ifdef USER_APP_BUILD
 				lora_decode_packet(appData->Buffer, appData->BufferSize);
-				system_update();
 #endif  // #ifdef USER_APP_BUILD
 			}
 			break;

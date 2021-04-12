@@ -28,6 +28,9 @@
 #include "timer_if.h"
 
 /* USER CODE BEGIN Includes */
+#ifdef USER_APP
+#include "user_app.h"
+#endif  // #ifdef USER_APP
 
 /* USER CODE END Includes */
 
@@ -92,6 +95,9 @@ uint8_t GetBatteryLevel(void)
   uint8_t batteryLevel = 0;
 
   /* USER CODE BEGIN GetBatteryLevel_0 */
+#ifdef USER_APP
+  batteryLevel = lora_get_battery_level();
+#endif  // #ifdef USER_APP
   /* USER CODE END GetBatteryLevel_0 */
 
   return batteryLevel;  /* 1 (very low) to 254 (fully charged) */
@@ -102,7 +108,11 @@ uint16_t GetTemperatureLevel(void)
   uint16_t temperatureLevel = 0;
 
   /* USER CODE BEGIN GetTemperatureLevel */
+#ifdef USER_APP
+  temperatureLevel = lora_get_temperature_level();
+#endif  // #ifdef USER_APP
   /* USER CODE END GetTemperatureLevel */
+
   return temperatureLevel;
 }
 

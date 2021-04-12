@@ -31,8 +31,10 @@ extern "C" {
 const uint8_t *lora_encode_packet(uint8_t *len);
 void lora_decode_packet(const uint8_t *packet, size_t len);
 
+void lora_get_network_key(uint8_t *key, size_t len);
+void lora_get_join_eui(uint8_t *eui, size_t len);
+
 void system_init();
-void system_update();
 void system_process();
 
 #ifdef __cplusplus

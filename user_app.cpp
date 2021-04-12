@@ -23,6 +23,9 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 #include "main.h"
 #include "app_lorawan.h"
+#include "secure-element.h"
+
+#include <stdio.h>
 
 const uint8_t *lora_encode_packet(uint8_t *len) {
 	static OutBitStream bitstream;
@@ -48,7 +51,25 @@ void lora_decode_packet(const uint8_t *packet, size_t len) {
 	bitstream.GetBits(8);
 }
 
+void lora_get_network_key(uint8_t *key, size_t len) {
+	if (len == 16) {
+		memset(key, 0, len);
+	}
+}
+
+void lora_get_join_eui(uint8_t *eui, size_t len) {
+	if (len == 8) {
+		memset(eui, 0, len);
+	}
+}
+
 void system_init() {
+  printf("\r\n**************************************************************");
+  printf("\r\nDevEUI: ");
+  for(size_t c = 0; c < 8; c++) {
+	  printf("%02x ",SecureElementGetDevEui()[c]);
+  }
+  printf("\r\n");
 }
 
 void system_update() {
