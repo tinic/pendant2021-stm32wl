@@ -24,7 +24,7 @@ set(CXX_FLAGS
     -Wshadow 
     -Wfloat-conversion 
     -Wformat=2 
-    -std=c++17 
+    -std=c++20 
     -fno-rtti 
     -fno-exceptions)
 
