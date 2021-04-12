@@ -127,6 +127,9 @@ int main(void)
   MX_LoRaWAN_Init();
   MX_RNG_Init();
   /* USER CODE BEGIN 2 */
+#ifdef USER_APP_BUILD
+  system_init();
+#endif  // #ifdef USER_APP_BUILD
   /* USER CODE END 2 */
 
   /* Infinite loop */

@@ -23,6 +23,9 @@
 #include "stm32wlxx_it.h"
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
+#ifdef USER_APP_BUILD
+#include "user_app.h"
+#endif  // #ifdef USER_APP_BUILD
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/

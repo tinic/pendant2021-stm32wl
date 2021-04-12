@@ -97,6 +97,7 @@ file(GLOB_RECURSE STM32CUBEIDE_SRC ${PROJECT_SOURCE_DIR}/STM32CubeIDE/*.c)
 
 add_executable(${PROJECT_NAME}.elf 
     ${PROJECT_SOURCE_DIR}/user_app.cpp 
+    ${PROJECT_SOURCE_DIR}/i2c.cpp 
     ${PROJECT_SOURCE_DIR}/STM32CubeIDE/Core/Startup/startup_stm32wle5ccux.s 
     ${STM32CUBEIDE_SRC})
 
@@ -139,4 +140,3 @@ add_custom_command(TARGET ${PROJECT_NAME}.elf POST_BUILD
     
 set(PROGRAM_CMD "openocd -f interface/stlink-v2.cfg -f target/stm32wlx.cfg -c \"program ${PROJECT_NAME}.bin ${BASE_ADDRESS} verify reset exit\"")
 install(CODE "execute_process(COMMAND ${PROGRAM_CMD})")
-

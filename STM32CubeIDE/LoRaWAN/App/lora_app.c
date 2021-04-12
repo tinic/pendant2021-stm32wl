@@ -210,7 +210,7 @@ static void JoinNetwork() {
 
 static void SendTxData(void) {
 #ifdef USER_APP_BUILD
-	TxData.Buffer = (uint8_t *)encode_packet(&TxData.BufferSize);
+	TxData.Buffer = (uint8_t *)lora_encode_packet(&TxData.BufferSize);
 #else  //#ifdef USER_APP_BUILD
 	TxData.Buffer = 0;
 	TxData.BufferSize = 0;
@@ -270,7 +270,7 @@ static void OnRxData(LmHandlerAppData_t *appData, LmHandlerRxParams_t *params)
 			break;
 			case LORAWAN_USER_APP_PORT: {
 #ifdef USER_APP_BUILD
-				decode_packet(appData->Buffer, appData->BufferSize);
+				lora_decode_packet(appData->Buffer, appData->BufferSize);
 				system_update();
 #endif  // #ifdef USER_APP_BUILD
 			}
