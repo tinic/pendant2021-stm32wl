@@ -155,7 +155,7 @@ void LoRaWAN_Init(void)
 
 #ifdef USER_APP_BUILD
   static uint8_t networkKey[16];
-  lora_get_network_key(&networkKey[0], sizeof(networkKey));
+  lora_get_app_key(&networkKey[0], sizeof(networkKey));
 
   mibReq.Type = MIB_NWK_KEY;
   mibReq.Param.NwkKey = networkKey;
@@ -166,7 +166,7 @@ void LoRaWAN_Init(void)
   LoRaMacMibSetRequestConfirm(&mibReq);
 
   static uint8_t joinEui[8];
-  lora_get_join_eui(&joinEui[0], sizeof(joinEui));
+  memset(&joinEui[0], 0, sizeof(joinEui));
   mibReq.Type = MIB_JOIN_EUI;
   mibReq.Param.JoinEui = joinEui;
   LoRaMacMibSetRequestConfirm(&mibReq);

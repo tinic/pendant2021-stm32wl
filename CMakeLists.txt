@@ -99,6 +99,7 @@ file(GLOB_RECURSE STM32CUBEIDE_SRC ${PROJECT_SOURCE_DIR}/STM32CubeIDE/*.c)
 add_executable(${PROJECT_NAME}.elf 
     ${PROJECT_SOURCE_DIR}/user_app.cpp 
     ${PROJECT_SOURCE_DIR}/i2c.cpp 
+    ${PROJECT_SOURCE_DIR}/murmurhash3.cpp 
     ${PROJECT_SOURCE_DIR}/STM32CubeIDE/Core/Startup/startup_stm32wle5ccux.s 
     ${STM32CUBEIDE_SRC})
 

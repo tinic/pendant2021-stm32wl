@@ -20,6 +20,7 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #include "./user_app.h"
 #include "./bitstream.h"
 #include "./i2c.h"
+#include "./murmurhash3.h"
 
 #include "main.h"
 #include "app_lorawan.h"
@@ -51,16 +52,9 @@ void lora_decode_packet(const uint8_t *packet, size_t len) {
 	bitstream.GetBits(8);
 }
 
-void lora_get_network_key(uint8_t *key, size_t len) {
+void lora_get_app_key(uint8_t *key, size_t len) {
 	if (len == 16) {
-		const uint8_t _key[16] = { 0xbc, 0x60, 0x99, 0xa3, 0x0a, 0xf2, 0x3d, 0xdb, 0xae, 0xeb, 0xa5, 0xe4, 0xb4, 0x45, 0x52, 0x59 };
-		memcpy(key, _key, len);
-	}
-}
-
-void lora_get_join_eui(uint8_t *eui, size_t len) {
-	if (len == 8) {
-		memset(eui, 0, len);
+		MurmurHash3_128(SecureElementGetDevEui(),8,0xDEAD,key);
 	}
 }
 
@@ -70,6 +64,12 @@ void system_init() {
   printf("\r\nDevEUI: ");
   for(size_t c = 0; c < 8; c++) {
 	  printf("%02x ",SecureElementGetDevEui()[c]);
+  }
+  printf("\r\nAppKey: ");
+  uint8_t key[16];
+  lora_get_app_key(key, 16);
+  for(size_t c = 0; c < 16; c++) {
+	  printf("%02x ",key[c]);
   }
   printf("\r\n");
 }
