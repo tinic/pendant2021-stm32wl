@@ -112,7 +112,6 @@ uint16_t GetTemperatureLevel(void)
   temperatureLevel = lora_get_temperature_level();
 #endif  // #ifdef USER_APP
   /* USER CODE END GetTemperatureLevel */
-
   return temperatureLevel;
 }
 
