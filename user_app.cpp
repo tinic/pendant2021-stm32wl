@@ -74,9 +74,6 @@ void system_init() {
   printf("\r\n");
 }
 
-void system_update() {
-	i2c::instance().update();
-}
-
 void system_process() {
+	i2c::instance().update();
 }

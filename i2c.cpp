@@ -76,6 +76,26 @@ void i2c::init() {
 }
 
 void i2c::update() {
+    if (i2cError != fineAndDandy) {
+        printf("i2c error: ");
+        switch(i2cError) {
+            case Error::statusError:
+            printf("status");
+            break;
+            case Error::transmitError:
+            printf("transmit");
+            break;
+            case Error::receiveError:
+            printf("receive");
+            break;
+            default:
+            case Error::unknownError:
+            printf("unknown");
+            break;
+        }
+        printf("\r\n");
+        i2cError = fineAndDandy;
+    }
 }
 
 void i2c::slaveTxCallback(I2C_HandleTypeDef *hi2c) {
