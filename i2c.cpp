@@ -82,19 +82,16 @@ void i2c::slaveTxCallback(I2C_HandleTypeDef *hi2c) {
     switch (i2cStatus) {
         case State::GetReg: {
             if (HAL_I2C_Slave_Seq_Transmit_IT(hi2c, &i2cRegBank[i2cReg], 1, I2C_FIRST_FRAME) != HAL_OK) {
-                i2cError = Error::transmitError;                
-                printf("Error 9\n");
+                i2cError = Error::transmitError;     
             }
         } break;
         case State::SendStat: {
             if (HAL_I2C_Slave_Seq_Transmit_IT(hi2c, reinterpret_cast<uint8_t *>(i2cError), sizeof(i2cError), I2C_FIRST_FRAME) != HAL_OK) {
                 i2cError = Error::transmitError;                
-                printf("Error 9\n");
             }
         } break;
         default: {
             i2cError = Error::statusError;                
-            printf("Error 8\n");
         } break;
     }
 }
@@ -105,25 +102,21 @@ void i2c::slaveRxCallback(I2C_HandleTypeDef *hi2c) {
             i2cStatus = State::HaveAddr;
             if (HAL_I2C_Slave_Seq_Receive_IT(hi2c, &i2cRegBank[i2cReg], 1, I2C_FIRST_AND_NEXT_FRAME) != HAL_OK) {
                 i2cError = Error::receiveError;                
-                printf("Error 10\n");
             }
         } break;
         case State::HaveAddr: {
             i2cStatus = State::SetReg;
             if (HAL_I2C_Slave_Seq_Receive_IT(hi2c, &i2cRegBank[i2cReg], 1, I2C_FIRST_FRAME) != HAL_OK) {
                 i2cError = Error::receiveError;                
-                printf("Error 11\n");
             }
         } break;
         case State::SetReg: {
             if (HAL_I2C_Slave_Seq_Receive_IT(hi2c, &i2cRegBank[i2cReg], 1, I2C_FIRST_FRAME) != HAL_OK) {
                 i2cError = Error::receiveError;                
-                printf("Error 11\n");
             }
         } break;
         default: {
             i2cError = Error::statusError;                
-            printf("Error 8\n");
         } break;
     }
 }
@@ -136,19 +129,16 @@ void i2c::addrCallback(I2C_HandleTypeDef *hi2c, uint8_t direction, uint16_t) {
                     i2cStatus = State::WaitAddr;
                     if (HAL_I2C_Slave_Seq_Receive_IT(hi2c, &i2cReg, sizeof(i2cReg), I2C_NEXT_FRAME) != HAL_OK) {
                         i2cError = Error::receiveError;                
-                        printf("Error 4\n");
                     }
                 } break;
                 case I2C_DIRECTION_RECEIVE: {
                     i2cStatus = State::SendStat;
                     if (HAL_I2C_Slave_Seq_Transmit_IT(hi2c, reinterpret_cast<uint8_t *>(&i2cError), sizeof(i2cError), I2C_FIRST_FRAME) != HAL_OK) {
                         i2cError = Error::transmitError;                
-                        printf("Error 5\n");
                     }
                 } break;
                 default: {
                     i2cError = Error::unknownError;                
-                    printf("Error 1!\n");
                 } break;
             }
         } break;
@@ -158,25 +148,21 @@ void i2c::addrCallback(I2C_HandleTypeDef *hi2c, uint8_t direction, uint16_t) {
                     i2cStatus = State::SetReg;
                     if (HAL_I2C_Slave_Seq_Receive_IT(hi2c, &i2cRegBank[i2cReg], 1, I2C_FIRST_FRAME) != HAL_OK) {
                         i2cError = Error::receiveError;                
-                        printf("Error 6\n");
                     }
                 } break;
                 case I2C_DIRECTION_RECEIVE: {
                     i2cStatus = State::GetReg;
                     if (HAL_I2C_Slave_Seq_Transmit_IT(hi2c, &i2cRegBank[i2cReg], 1, I2C_FIRST_FRAME) != HAL_OK) {
                         i2cError = Error::transmitError;                
-                        printf("Error 7\n");
                     }
                 } break;
                 default: {
                     i2cError = Error::unknownError;                
-                    printf("Error 2!\n");
                 } break;
             }
         } break;
         default: {
             i2cError = Error::statusError;                
-            printf("Error 3!\n");
         } break;
     }
 }
@@ -188,7 +174,6 @@ void i2c::listenCallback(I2C_HandleTypeDef *hi2c) {
 
 
 void i2c::errorCallback(I2C_HandleTypeDef *hi2c) {
-    printf("Error 11!\n");
 	if (HAL_I2C_GetError(hi2c) != HAL_I2C_ERROR_AF) {
         return;
 	}

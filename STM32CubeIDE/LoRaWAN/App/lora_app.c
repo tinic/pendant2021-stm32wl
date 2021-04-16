@@ -156,7 +156,12 @@ void LoRaWAN_Init(void)
 #ifdef USER_APP_BUILD
   static uint8_t networkKey[16];
   lora_get_network_key(&networkKey[0], sizeof(networkKey));
+
   mibReq.Type = MIB_NWK_KEY;
+  mibReq.Param.NwkKey = networkKey;
+  LoRaMacMibSetRequestConfirm(&mibReq);
+
+  mibReq.Type = MIB_APP_KEY;
   mibReq.Param.NwkKey = networkKey;
   LoRaMacMibSetRequestConfirm(&mibReq);
 

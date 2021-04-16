@@ -23,6 +23,7 @@ set(CXX_FLAGS
     -Wdouble-promotion
     -Wshadow 
     -Wfloat-conversion 
+    -Wno-volatile
     -Wformat=2 
     -std=c++20 
     -fno-rtti 
@@ -138,5 +139,5 @@ add_custom_command(TARGET ${PROJECT_NAME}.elf POST_BUILD
     COMMAND ${CMAKE_SIZE} ${PROJECT_NAME}.elf
     COMMENT "Building ${HEX_FILE} \nBuilding ${BIN_FILE}")
     
-set(PROGRAM_CMD "openocd -f interface/stlink-v2.cfg -f target/stm32wlx.cfg -c \"program ${PROJECT_NAME}.bin ${BASE_ADDRESS} verify reset exit\"")
+set(PROGRAM_CMD "openocd -f interface/stlink.cfg -f target/stm32wlx.cfg -c \"program ${PROJECT_NAME}.bin ${BASE_ADDRESS} verify reset exit\"")
 install(CODE "execute_process(COMMAND ${PROGRAM_CMD})")

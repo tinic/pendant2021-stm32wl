@@ -53,7 +53,8 @@ void lora_decode_packet(const uint8_t *packet, size_t len) {
 
 void lora_get_network_key(uint8_t *key, size_t len) {
 	if (len == 16) {
-		memset(key, 0, len);
+		const uint8_t _key[16] = { 0xbc, 0x60, 0x99, 0xa3, 0x0a, 0xf2, 0x3d, 0xdb, 0xae, 0xeb, 0xa5, 0xe4, 0xb4, 0x45, 0x52, 0x59 };
+		memcpy(key, _key, len);
 	}
 }
 
@@ -64,6 +65,7 @@ void lora_get_join_eui(uint8_t *eui, size_t len) {
 }
 
 void system_init() {
+  i2c::instance();
   printf("\r\n**************************************************************");
   printf("\r\nDevEUI: ");
   for(size_t c = 0; c < 8; c++) {
