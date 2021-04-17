@@ -64,16 +64,19 @@ void system_init() {
   printf("\r\nDevEUI: ");
   for(size_t c = 0; c < 8; c++) {
 	  printf("%02x ",SecureElementGetDevEui()[c]);
+	  i2c::instance().set(c,SecureElementGetDevEui()[c]);
   }
   printf("\r\nAppKey: ");
   uint8_t key[16];
   lora_get_app_key(key, 16);
   for(size_t c = 0; c < 16; c++) {
 	  printf("%02x ",key[c]);
+	  i2c::instance().set(c+8,key[c]);
   }
   printf("\r\n");
 }
 
 void system_process() {
 	i2c::instance().update();
+	printf("Effect: %d\r\n", i2c::instance().get(0x66));
 }
