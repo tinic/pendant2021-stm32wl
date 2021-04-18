@@ -27,30 +27,17 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #include <memory.h>
 #include <stdio.h>
 
-extern "C" I2C_HandleTypeDef hi2c2;
 
 extern "C" {
 
-__attribute__((used)) void HAL_I2C_SlaveTxCpltCallback(I2C_HandleTypeDef *hi2c) {
-    i2c::instance().slaveTxCallback(hi2c);
+void i2c_slave_ev_irq_handler(void) {
+    i2c::instance().slave_ev_irq_handler();
 }
 
-__attribute__((used)) void HAL_I2C_SlaveRxCpltCallback(I2C_HandleTypeDef *hi2c) {
-    i2c::instance().slaveRxCallback(hi2c);
+void i2c_slave_err_irq_handler() {
+    i2c::instance().slave_err_irq_handler();
 }
-
-__attribute__((used)) void HAL_I2C_AddrCallback(I2C_HandleTypeDef *hi2c, uint8_t direction, uint16_t addrMatchCode) {
-    i2c::instance().addrCallback(hi2c, direction, addrMatchCode);
-}
-
-__attribute__((used)) void HAL_I2C_ListenCpltCallback(I2C_HandleTypeDef *hi2c) {
-    i2c::instance().listenCallback(hi2c);
-}
-
-__attribute__((used)) void HAL_I2C_ErrorCallback(I2C_HandleTypeDef *hi2c) {
-    i2c::instance().errorCallback(hi2c);
-}
-
+   
 };
 
 i2c &i2c::instance() {
@@ -70,116 +57,91 @@ void i2c::init() {
     for (size_t c = 0; c < sizeof(i2cRegBank); c++) {
         i2cRegBank[c] = c; 
     }
-    i2cStatus = State::Wait;
-    HAL_I2C_EnableListen_IT(&hi2c2);
+
+    I2C2->CR1 = I2C_CR1_STOPIE | I2C_CR1_ADDRIE | I2C_CR1_RXIE | I2C_CR1_TXIE;
+    I2C2->CR2 = 0;
+    I2C2->OAR1 = I2C_OAR1_OA1EN | i2c_addr << 1;
+    I2C2->OAR2 = 0;
+    I2C2->CR1 |= I2C_CR1_PE;
+
+    NVIC_SetPriority(I2C2_EV_IRQn, 0);
+    NVIC_EnableIRQ(I2C2_EV_IRQn);
+
+    NVIC_SetPriority(I2C2_ER_IRQn, 0);
+    NVIC_EnableIRQ(I2C2_ER_IRQn);
 }
 
 void i2c::update() {
-    if (i2cError != fineAndDandy) {
-        printf("i2c error: ");
-        switch(i2cError) {
-            case Error::statusError:
-            printf("status");
-            break;
-            case Error::transmitError:
-            printf("transmit");
-            break;
-            case Error::receiveError:
-            printf("receive");
-            break;
-            default:
-            case Error::unknownError:
-            printf("unknown");
-            break;
+}
+
+int i2c::slave_process_addr_match(int) {
+    i2cStatus = WaitAddr;
+    return 0;
+}
+
+void i2c::slave_process_rx_byte(uint8_t val) {
+    switch(i2cStatus) {
+        case Stop:
+        case WaitAddr: {
+            i2cStatus = HaveAddr;
+            i2cReg = val;
+        } break;
+        case HaveAddr: {
+            i2cStatus = WaitForEnd;
+            i2cRegBank[i2cReg] = val;
+        } break;
+        default: {
+            printf("slave_process_rx_byte error!\n");
         }
-        printf("\r\n");
-        i2cError = fineAndDandy;
-        i2cStatus = State::Wait;
-        HAL_I2C_EnableListen_IT(&hi2c2);
     }
 }
 
-void i2c::slaveTxCallback(I2C_HandleTypeDef *) {
-    switch (i2cStatus) {
-        case State::GetReg: {
-        } break;
-        case State::SendStat: {
+void i2c::slave_process_rx_end(void) {
+    i2cStatus = Stop;
+}
+
+uint8_t i2c::slave_process_tx_byte(void) {
+    switch(i2cStatus) {
+        case HaveAddr: {
+            i2cStatus = WaitForEnd;
+            return i2cRegBank[i2cReg];
         } break;
         default: {
-            i2cError = Error::statusError;                
-        } break;
+            printf("slave_process_tx_byte error!\n");
+        }
+    }
+    return 0;
+}
+
+void i2c::slave_process_tx_end(void) {
+    i2cStatus = Stop;
+}
+
+void i2c::slave_ev_irq_handler() {
+    uint32_t isr = I2C2->ISR;
+    if (isr & I2C_ISR_ADDR) {
+        I2C2->ISR = I2C_ISR_TXE;
+        I2C2->ICR = I2C_ICR_ADDRCF;
+        slave_process_addr_match(0);
+    }
+    if (isr & I2C_ISR_TXIS) {
+        I2C2->TXDR = slave_process_tx_byte();
+    }
+    if (isr & I2C_ISR_RXNE) {
+        slave_process_rx_byte(I2C2->RXDR);
+    }
+    if (isr & I2C_ISR_STOPF) {
+        I2C2->ICR = I2C_ICR_STOPCF;
+        I2C2->OAR1 &= ~I2C_OAR1_OA1EN;
+        if (I2C2->ISR & I2C_ISR_DIR) {
+            slave_process_tx_end();
+        } else {
+            slave_process_rx_end();
+        }
+        I2C2->OAR1 |= I2C_OAR1_OA1EN;
     }
 }
 
-void i2c::slaveRxCallback(I2C_HandleTypeDef *) {
-    switch (i2cStatus) {
-        case State::WaitAddr: {
-            i2cStatus = State::HaveAddr;
-        } break;
-        case State::SetReg: {
-        } break;
-        default: {
-            i2cError = Error::statusError;                
-        } break;
-    }
-}
-
-void i2c::addrCallback(I2C_HandleTypeDef *hi2c, uint8_t direction, uint16_t) {
-    switch (i2cStatus) {
-        case State::Wait: {
-            switch (direction) {
-                case I2C_DIRECTION_TRANSMIT: {
-                    i2cStatus = State::WaitAddr;
-                    if (HAL_I2C_Slave_Seq_Receive_IT(hi2c, &i2cReg, 1, I2C_FIRST_FRAME) != HAL_OK) {
-                        i2cError = Error::receiveError;                
-                    }
-                } break;
-                case I2C_DIRECTION_RECEIVE: {
-                    i2cStatus = State::SendStat;
-                    if (HAL_I2C_Slave_Seq_Transmit_IT(hi2c, reinterpret_cast<uint8_t *>(&i2cError), sizeof(i2cError), I2C_FIRST_AND_LAST_FRAME) != HAL_OK) {
-                        i2cError = Error::transmitError;                
-                    }
-                } break;
-                default: {
-                    i2cError = Error::unknownError;                
-                } break;
-            }
-        } break;
-        case State::HaveAddr: {
-            switch (direction) {
-                case I2C_DIRECTION_TRANSMIT: {
-                    i2cStatus = State::SetReg;
-                    if (HAL_I2C_Slave_Seq_Receive_IT(hi2c, &i2cRegBank[i2cReg], 1, I2C_LAST_FRAME) != HAL_OK) {
-                        i2cError = Error::receiveError;                
-                    }
-                } break;
-                case I2C_DIRECTION_RECEIVE: {
-                    i2cStatus = State::GetReg;
-                    if (HAL_I2C_Slave_Seq_Transmit_IT(hi2c, &i2cRegBank[i2cReg], 1, I2C_LAST_FRAME) != HAL_OK) {
-                        i2cError = Error::transmitError;                
-                    }
-                } break;
-                default: {
-                    i2cError = Error::unknownError;                
-                } break;
-            }
-        } break;
-        default: {
-            i2cError = Error::statusError;                
-        } break;
-    }
-}
-
-void i2c::listenCallback(I2C_HandleTypeDef *hi2c) {
-    i2cStatus = State::Wait;
-	HAL_I2C_EnableListen_IT(hi2c);
-}
-
-
-void i2c::errorCallback(I2C_HandleTypeDef *hi2c) {
-	if (HAL_I2C_GetError(hi2c) != HAL_I2C_ERROR_AF) {
-        return;
-	}
-    i2cStatus = State::Wait;
-	HAL_I2C_EnableListen_IT(hi2c);
+void i2c::slave_err_irq_handler() {
+    printf("slave_err_irq_handler!\n");
 }

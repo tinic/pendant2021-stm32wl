@@ -47,7 +47,8 @@
 
 /* Private function prototypes -----------------------------------------------*/
 /* USER CODE BEGIN PFP */
-
+void i2c_slave_ev_irq_handler(void);
+void i2c_slave_err_irq_handler(void);
 /* USER CODE END PFP */
 
 /* Private user code ---------------------------------------------------------*/
@@ -221,6 +222,7 @@ void TAMP_STAMP_LSECSS_SSRU_IRQHandler(void)
 void I2C2_EV_IRQHandler(void)
 {
   /* USER CODE BEGIN I2C2_EV_IRQn 0 */
+  i2c_slave_ev_irq_handler();
 
   /* USER CODE END I2C2_EV_IRQn 0 */
   HAL_I2C_EV_IRQHandler(&hi2c2);
@@ -235,6 +237,7 @@ void I2C2_EV_IRQHandler(void)
 void I2C2_ER_IRQHandler(void)
 {
   /* USER CODE BEGIN I2C2_ER_IRQn 0 */
+  i2c_slave_err_irq_handler();
 
   /* USER CODE END I2C2_ER_IRQn 0 */
   HAL_I2C_ER_IRQHandler(&hi2c2);
