@@ -32,9 +32,9 @@ extern "C" {
 
 class i2c {
 public:
-	static i2c &instance();
+    static i2c &instance();
 
-	void update();
+    void update();
 
     uint8_t Effect() const;
 
@@ -59,7 +59,7 @@ private:
 
     static constexpr uint32_t i2c_addr = 0x33;
 
-	void init();
+    void init();
 
     uint8_t i2cReg;
     union I2CRegs {

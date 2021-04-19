@@ -33,28 +33,28 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #include <memory.h>
 
 const uint8_t *lora_encode_packet(uint8_t *len, uint8_t *port) {
-	return i2c::instance().encodeForLora(*len, *port);
+    return i2c::instance().encodeForLora(*len, *port);
 }
 
 void lora_decode_packet(const uint8_t *packet, size_t len) {
 
-	if (len < 7) {
-		return;
-	}
+    if (len < 7) {
+        return;
+    }
 
-	InBitStream bitstream(packet, len);
+    InBitStream bitstream(packet, len);
 
-	bitstream.GetBits(8);
+    bitstream.GetBits(8);
 }
 
 const uint8_t *lora_app_key() {
-	static uint8_t devEui[8] = { };
-	static uint8_t appKey[16] = { };
-	if (memcmp(devEui, SecureElementGetDevEui(), 8) != 0) {
-		memcpy(devEui, SecureElementGetDevEui(), 8);
-		MurmurHash3_128(devEui,8,0xDEAD,appKey);
-	}
-	return appKey;
+    static uint8_t devEui[8] = { };
+    static uint8_t appKey[16] = { };
+    if (memcmp(devEui, SecureElementGetDevEui(), 8) != 0) {
+        memcpy(devEui, SecureElementGetDevEui(), 8);
+        MurmurHash3_128(devEui,8,0xDEAD,appKey);
+    }
+    return appKey;
 }
 
 void system_init() {
@@ -62,15 +62,15 @@ void system_init() {
   printf("\r\n**************************************************************");
   printf("\r\nDevEUI: ");
   for(size_t c = 0; c < 8; c++) {
-	  printf("%02x ",SecureElementGetDevEui()[c]);
+      printf("%02x ",SecureElementGetDevEui()[c]);
   }
   printf("\r\nAppKey: ");
   for(size_t c = 0; c < 16; c++) {
-	  printf("%02x ",lora_app_key()[c]);
+      printf("%02x ",lora_app_key()[c]);
   }
   printf("\r\n");
 }
 
 void system_process() {
-	i2c::instance().update();
+    i2c::instance().update();
 }

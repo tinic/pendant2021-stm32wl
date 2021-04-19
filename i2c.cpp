@@ -47,17 +47,17 @@ void i2c_slave_err_irq_handler() {
 };
 
 i2c &i2c::instance() {
-	static i2c i;
-	static bool init = false;
-	if (!init) {
-		init = true;
-		i.init();
-	}
-	return i;
+    static i2c i;
+    static bool init = false;
+    if (!init) {
+        init = true;
+        i.init();
+    }
+    return i;
 }
 
 void i2c::init() {
-	memset(this, 0, sizeof(i2c));
+    memset(this, 0, sizeof(i2c));
 
     I2C2->CR1 = I2C_CR1_STOPIE | I2C_CR1_ADDRIE | I2C_CR1_RXIE | I2C_CR1_TXIE;
     I2C2->CR2 = 0;
@@ -68,7 +68,7 @@ void i2c::init() {
     i2cReg = 0;
     i2cStatus = Stop;
 
-	update();
+    update();
 
     NVIC_SetPriority(I2C2_EV_IRQn, 0);
     NVIC_EnableIRQ(I2C2_EV_IRQn);
@@ -120,18 +120,17 @@ float i2c::Humidity() const {
     return u82f(i2cRegs.humidity, 0.0f, 1.0f);
 }
 
-
 const uint8_t *i2c::encodeForLora(uint8_t &len, uint8_t &port) {
 
-	static OutBitStream bitstream;
+    static OutBitStream bitstream;
 
-	int8_t dataRate = DR_0;
-	LmHandlerGetTxDatarate(&dataRate);
+    int8_t dataRate = DR_0;
+    LmHandlerGetTxDatarate(&dataRate);
 
-	bitstream.Reset();
+    bitstream.Reset();
 
     if (dataRate == DR_0) {
-		port = 1;
+        port = 1;
 
         bitstream.PutUint8((i2cRegs.systemTime>>0)&0xFF);
         bitstream.PutUint8((i2cRegs.systemTime>>8)&0xFF);
@@ -140,7 +139,7 @@ const uint8_t *i2c::encodeForLora(uint8_t &len, uint8_t &port) {
         bitstream.PutUint8(i2cRegs.humidity);
 
     } else { // > DR_0
-		port = 2;
+        port = 2;
 
         // These are likely to be 0 or low
         bitstream.PutExpGolomb(i2cRegs.systemTime);
@@ -158,11 +157,11 @@ const uint8_t *i2c::encodeForLora(uint8_t &len, uint8_t &port) {
         bitstream.PutUint8(i2cRegs.systemVoltage);
     }
 
-	bitstream.FlushBits();
+    bitstream.FlushBits();
 
-	len = uint8_t(bitstream.Position());
+    len = uint8_t(bitstream.Position());
 
-	printf("Data Size: %d Port: %d\r\n", int(len), int(port));
+    printf("Data Size: %d Port: %d\r\n", int(len), int(port));
 
     return bitstream.Buffer();
 }
