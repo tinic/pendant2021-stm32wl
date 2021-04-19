@@ -46,7 +46,7 @@ public:
     float Temperature() const;
     float Humidity() const;
 
-    void encodeForLora(OutBitStream &bitstream);
+    void encodeForLora(OutBitStream &bitstream, size_t dataLimit);
 
 private:
 

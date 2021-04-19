@@ -25,20 +25,39 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #include "main.h"
 #include "app_lorawan.h"
 #include "secure-element.h"
+#include "Region.h"
+#include "RegionUS915.h"
+#include "LmHandler.h"
 
 #include <stdio.h>
 #include <memory.h>
 
 const uint8_t *lora_encode_packet(size_t *len) {
+
+	int8_t dataRate = DR_0;
+	LmHandlerGetTxDatarate(&dataRate);
+
+	GetPhyParams_t getPhy {};
+    getPhy.Attribute = PHY_MAX_PAYLOAD;
+    getPhy.Datarate = dataRate;
+    PhyParam_t phyParam = RegionUS915GetPhyParam( &getPhy );
+
+    size_t dataLimit = phyParam.Value;
+
+	printf("Data Limit: %d\r\n", int(dataLimit));
+
 	static OutBitStream bitstream;
 
 	bitstream.Reset();
 
-	i2c::instance().encodeForLora(bitstream);
+	i2c::instance().encodeForLora(bitstream, dataLimit);
 
 	bitstream.FlushBits();
 
 	*len = uint8_t(bitstream.Position());
+
+	printf("Data Size: %d\r\n", int(*len));
+
 	return bitstream.Buffer();
 }
 

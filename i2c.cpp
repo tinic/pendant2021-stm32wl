@@ -117,24 +117,36 @@ float i2c::Humidity() const {
     return u82f(i2cRegs.humidity, 0.0f, 1.0f);
 }
 
-void i2c::encodeForLora(OutBitStream &bitstream) {
+void i2c::encodeForLora(OutBitStream &bitstream, size_t dataLimit) {
 
 	bitstream.FlushBits();
 
-    // These are likely to be 0 or low
-    bitstream.PutExpGolomb(i2cRegs.systemTime);
-    bitstream.PutExpGolomb(i2cRegs.effectN);
-    bitstream.PutExpGolomb(i2cRegs.chargeCurrent);
-    bitstream.PutExpGolomb(i2cRegs.vbusVoltage);
+    if (dataLimit <= 11) { // DR_0
 
-	bitstream.FlushBits();
+        bitstream.PutUint8((i2cRegs.systemTime>>0)&0xFF);
+        bitstream.PutUint8((i2cRegs.systemTime>>8)&0xFF);
+        bitstream.PutUint8(i2cRegs.effectN);
+        bitstream.PutUint8(i2cRegs.temperature);
+        bitstream.PutUint8(i2cRegs.humidity);
 
-    // Unlikely to be zero or low
-    bitstream.PutUint8(i2cRegs.temperature);
-    bitstream.PutUint8(i2cRegs.humidity);
-    bitstream.PutUint8(i2cRegs.brightness);
-    bitstream.PutUint8(i2cRegs.batteryVoltage);
-    bitstream.PutUint8(i2cRegs.systemVoltage);
+    } else { // > DR_0
+
+        // These are likely to be 0 or low
+        bitstream.PutExpGolomb(i2cRegs.systemTime);
+        bitstream.PutExpGolomb(i2cRegs.effectN);
+        bitstream.PutExpGolomb(i2cRegs.chargeCurrent);
+        bitstream.PutExpGolomb(i2cRegs.vbusVoltage);
+
+        bitstream.FlushBits();
+
+        // Unlikely to be zero or low
+        bitstream.PutUint8(i2cRegs.temperature);
+        bitstream.PutUint8(i2cRegs.humidity);
+        bitstream.PutUint8(i2cRegs.brightness);
+        bitstream.PutUint8(i2cRegs.batteryVoltage);
+        bitstream.PutUint8(i2cRegs.systemVoltage);
+    }
+
 }
 
 int i2c::slave_process_addr_match(int) {
