@@ -36,6 +36,7 @@ set(LD_FLAGS
     -mthumb
     -mfloat-abi=soft
     -specs=nano.specs
+    -u _printf_float
     -lc
     -lm
     -lnosys

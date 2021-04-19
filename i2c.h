@@ -21,6 +21,7 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #define _I2C_H_
 
 #include "main.h"
+#include "bitstream.h"
 
 #include <stdint.h>
 
@@ -35,8 +36,17 @@ public:
 
 	void update();
 
-    uint8_t getEffect() const { return i2cRegs.effectN; };
-    uint8_t getBrightness() const { return i2cRegs.brightness; };
+    uint8_t Effect() const;
+
+    float Brightness() const;
+    float BatteryVoltage() const;
+    float SystemVoltage() const;
+    float VBUSVoltage() const;
+    float ChargeCurrent() const;
+    float Temperature() const;
+    float Humidity() const;
+
+    void encodeForLora(OutBitStream &bitstream);
 
 private:
 
@@ -55,11 +65,19 @@ private:
     union I2CRegs {
         uint8_t regs[256];
         struct  __attribute__ ((__packed__)) {
+
             uint8_t devEUI[8];
             uint8_t joinEUI[8];
             uint8_t appKey[16];
+
             uint8_t effectN;
             uint8_t brightness;
+            uint8_t batteryVoltage;
+            uint8_t systemVoltage;
+            uint8_t vbusVoltage;
+            uint8_t chargeCurrent;
+            uint8_t temperature;
+            uint8_t humidity;
         };
     } i2cRegs;
 

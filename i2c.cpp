@@ -81,6 +81,54 @@ void i2c::update() {
     memcpy(&i2cRegs.appKey[0], lora_app_key(), 16);
 }
 
+static float u82f(uint8_t v, float min, float max) {
+    return ((float(v) * ( 1.0f / 255.0f ) * (max - min) ) + min);
+}
+
+uint8_t i2c::Effect() const {
+    return i2cRegs.effectN;
+}
+
+float i2c::Brightness() const {
+    return u82f(i2cRegs.brightness, 0.0f, 1.0f);
+}
+
+float i2c::BatteryVoltage() const {
+    return u82f(i2cRegs.batteryVoltage, 2.7f, 4.2f);
+}
+
+float i2c::SystemVoltage() const {
+    return u82f(i2cRegs.systemVoltage, 2.7f, 4.2f);
+}
+
+float i2c::VBUSVoltage() const {
+    return u82f(i2cRegs.vbusVoltage, 0.0f, 5.5f);
+}
+
+float i2c::ChargeCurrent() const {
+    return u82f(i2cRegs.chargeCurrent, 0.0f, 1000.0f);
+}
+
+float i2c::Temperature() const {
+    return u82f(i2cRegs.temperature, 0.0f, 50.0f);
+}
+
+float i2c::Humidity() const {
+    return u82f(i2cRegs.humidity, 0.0f, 1.0f);
+}
+
+void i2c::encodeForLora(OutBitStream &bitstream) {
+	bitstream.FlushBits();
+    bitstream.PutUint8(i2cRegs.effectN);
+    bitstream.PutUint8(i2cRegs.brightness);
+    bitstream.PutUint8(i2cRegs.batteryVoltage);
+    bitstream.PutUint8(i2cRegs.systemVoltage);
+    bitstream.PutUint8(i2cRegs.vbusVoltage);
+    bitstream.PutUint8(i2cRegs.chargeCurrent);
+    bitstream.PutUint8(i2cRegs.temperature);
+    bitstream.PutUint8(i2cRegs.humidity);
+}
+
 int i2c::slave_process_addr_match(int) {
     switch(i2cStatus) {
         case Stop: {

@@ -34,7 +34,7 @@ const uint8_t *lora_encode_packet(size_t *len) {
 
 	bitstream.Reset();
 
-	bitstream.PutBits(0, 8);
+	i2c::instance().encodeForLora(bitstream);
 
 	bitstream.FlushBits();
 
@@ -79,6 +79,4 @@ void system_init() {
 
 void system_process() {
 	i2c::instance().update();
-	printf("Effect: %d\r\n", i2c::instance().getEffect());
-	printf("Brightness: %d\r\n", i2c::instance().getBrightness());
 }
