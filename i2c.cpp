@@ -20,6 +20,7 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #include "./i2c.h"
 
 #include <stdint.h>
+#include <type_traits>
 
 #include "main.h"
 #include "app_lorawan.h"
@@ -107,7 +108,7 @@ uint8_t i2c::slave_process_tx_byte(void) {
         case WaitAddr:
         case HaveAddr: {
             static_assert(sizeof(i2cRegBank) == 256 && 
-                          sizeof(i2cReg) == 1);
+                          std::is_same<decltype(i2cReg), uint8_t>::value);
             return i2cRegBank[i2cReg++];
         } break;
         default: {
