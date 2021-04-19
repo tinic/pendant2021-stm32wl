@@ -119,6 +119,7 @@ float i2c::Humidity() const {
 
 void i2c::encodeForLora(OutBitStream &bitstream) {
 	bitstream.FlushBits();
+    bitstream.PutUint16(i2cRegs.systemTime);
     bitstream.PutUint8(i2cRegs.effectN);
     bitstream.PutUint8(i2cRegs.brightness);
     bitstream.PutUint8(i2cRegs.batteryVoltage);
