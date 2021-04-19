@@ -61,6 +61,9 @@ void i2c::init() {
     I2C2->OAR2 = 0;
     I2C2->CR1 |= I2C_CR1_PE;
 
+    i2cReg = 0;
+    i2cStatus = Stop;
+
     NVIC_SetPriority(I2C2_EV_IRQn, 0);
     NVIC_EnableIRQ(I2C2_EV_IRQn);
 
@@ -99,13 +102,14 @@ void i2c::slave_process_rx_byte(uint8_t val) {
 }
 
 void i2c::slave_process_rx_end(void) {
+    i2cReg = 0;
     i2cStatus = Stop;
 }
 
 uint8_t i2c::slave_process_tx_byte(void) {
     switch(i2cStatus) {
-        case Stop:
-        case WaitAddr:
+        case Stop: // Assume we want register 0
+        case WaitAddr: // Assume we want register 0
         case HaveAddr: {
             static_assert(sizeof(i2cRegBank) == 256 && 
                           std::is_same<decltype(i2cReg), uint8_t>::value);
@@ -118,13 +122,14 @@ uint8_t i2c::slave_process_tx_byte(void) {
 }
 
 void i2c::slave_process_tx_end(void) {
+    i2cReg = 0;
     i2cStatus = Stop;
 }
 
 void i2c::slave_ev_irq_handler() {
     uint32_t isr = I2C2->ISR;
     if ((isr & I2C_ISR_ADDR) != 0) {
-        I2C2->ISR = I2C_ISR_TXE;
+        I2C2->ISR = I2C_ISR_TXE; // critical
         I2C2->ICR = I2C_ICR_ADDRCF;
         slave_process_addr_match(0);
     }
