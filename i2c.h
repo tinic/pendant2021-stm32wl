@@ -44,7 +44,7 @@ private:
         Stop,
         WaitAddr,
         HaveAddr,
-        WaitForEnd
+        WaitForStop
     } i2cStatus = Stop;
 
     static constexpr uint32_t i2c_addr = 0x33;

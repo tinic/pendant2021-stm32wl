@@ -54,10 +54,6 @@ void i2c::init() {
 	memset(this, 0, sizeof(i2c));
 	update();
 
-    for (size_t c = 0; c < sizeof(i2cRegBank); c++) {
-        i2cRegBank[c] = c; 
-    }
-
     I2C2->CR1 = I2C_CR1_STOPIE | I2C_CR1_ADDRIE | I2C_CR1_RXIE | I2C_CR1_TXIE;
     I2C2->CR2 = 0;
     I2C2->OAR1 = I2C_OAR1_OA1EN | i2c_addr << 1;
@@ -75,7 +71,13 @@ void i2c::update() {
 }
 
 int i2c::slave_process_addr_match(int) {
-    i2cStatus = WaitAddr;
+    switch(i2cStatus) {
+        case Stop: {
+            i2cStatus = WaitAddr;
+        } break;
+        default: {
+        } break;
+    }
     return 0;
 }
 
@@ -87,12 +89,11 @@ void i2c::slave_process_rx_byte(uint8_t val) {
             i2cReg = val;
         } break;
         case HaveAddr: {
-            i2cStatus = WaitForEnd;
+            i2cStatus = WaitForStop;
             i2cRegBank[i2cReg] = val;
         } break;
         default: {
-            printf("slave_process_rx_byte error!\n");
-        }
+        } break;
     }
 }
 
@@ -102,13 +103,15 @@ void i2c::slave_process_rx_end(void) {
 
 uint8_t i2c::slave_process_tx_byte(void) {
     switch(i2cStatus) {
+        case Stop:
+        case WaitAddr:
         case HaveAddr: {
-            i2cStatus = WaitForEnd;
-            return i2cRegBank[i2cReg];
+            static_assert(sizeof(i2cRegBank) == 256 && 
+                          sizeof(i2cReg) == 1);
+            return i2cRegBank[i2cReg++];
         } break;
         default: {
-            printf("slave_process_tx_byte error!\n");
-        }
+        } break;
     }
     return 0;
 }
@@ -119,18 +122,30 @@ void i2c::slave_process_tx_end(void) {
 
 void i2c::slave_ev_irq_handler() {
     uint32_t isr = I2C2->ISR;
-    if (isr & I2C_ISR_ADDR) {
+    if ((isr & I2C_ISR_ADDR) != 0) {
         I2C2->ISR = I2C_ISR_TXE;
         I2C2->ICR = I2C_ICR_ADDRCF;
         slave_process_addr_match(0);
     }
-    if (isr & I2C_ISR_TXIS) {
+    if ((isr & I2C_ISR_TXIS) != 0) {
         I2C2->TXDR = slave_process_tx_byte();
     }
-    if (isr & I2C_ISR_RXNE) {
+    if ((isr & I2C_ISR_RXNE) != 0) {
         slave_process_rx_byte(I2C2->RXDR);
     }
-    if (isr & I2C_ISR_STOPF) {
+    if ((isr & I2C_ISR_ARLO) != 0) {
+        I2C2->ICR = I2C_ICR_ARLOCF;
+    }
+    if ((isr & I2C_ISR_NACKF) != 0) {
+        I2C2->ICR = I2C_ICR_NACKCF;
+    }
+    if ((isr & I2C_ICR_BERRCF) != 0) {
+        I2C2->ICR = I2C_ICR_BERRCF;
+    }
+    if ((isr & I2C_ICR_OVRCF) != 0) {
+        I2C2->ICR = I2C_ICR_OVRCF;
+    }
+    if ((isr & I2C_ISR_STOPF) != 0) {
         I2C2->ICR = I2C_ICR_STOPCF;
         I2C2->OAR1 &= ~I2C_OAR1_OA1EN;
         if (I2C2->ISR & I2C_ISR_DIR) {
@@ -143,5 +158,5 @@ void i2c::slave_ev_irq_handler() {
 }
 
 void i2c::slave_err_irq_handler() {
-    printf("slave_err_irq_handler!\n");
+    printf("slave_err_irq_handler!\r\n");
 }
