@@ -154,15 +154,16 @@ void LoRaWAN_Init(void)
   memset(&mibReq, 0, sizeof(mibReq));
 
 #ifdef USER_APP_BUILD
-  static uint8_t networkKey[16];
-  lora_get_app_key(&networkKey[0], sizeof(networkKey));
+
+  static uint8_t key[16];
+  memcpy(key, lora_app_key(), 16);
 
   mibReq.Type = MIB_NWK_KEY;
-  mibReq.Param.NwkKey = networkKey;
+  mibReq.Param.NwkKey = key;
   LoRaMacMibSetRequestConfirm(&mibReq);
 
   mibReq.Type = MIB_APP_KEY;
-  mibReq.Param.NwkKey = networkKey;
+  mibReq.Param.NwkKey = key;
   LoRaMacMibSetRequestConfirm(&mibReq);
 
   static uint8_t joinEui[8];
@@ -205,7 +206,9 @@ static void JoinNetwork() {
 
 static void SendTxData(void) {
 #ifdef USER_APP_BUILD
-	TxData.Buffer = (uint8_t *)lora_encode_packet(&TxData.BufferSize);
+  size_t len = 0;
+	TxData.Buffer = (uint8_t *)lora_encode_packet(&len);
+  TxData.BufferSize = (uint8_t)len;
 #else  //#ifdef USER_APP_BUILD
 	TxData.Buffer = 0;
 	TxData.BufferSize = 0;

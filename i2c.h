@@ -35,8 +35,8 @@ public:
 
 	void update();
 
-    void set(uint8_t _i2cReg, uint8_t data) { i2cRegBank[_i2cReg] = data; }
-    uint8_t get(uint8_t _i2cReg) const { return i2cRegBank[_i2cReg]; }
+    uint8_t getEffect() const { return i2cRegs.effectN; };
+    uint8_t getBrightness() const { return i2cRegs.brightness; };
 
 private:
 
@@ -52,7 +52,16 @@ private:
 	void init();
 
     uint8_t i2cReg;
-    uint8_t i2cRegBank[256];
+    union I2CRegs {
+        uint8_t regs[256];
+        struct  __attribute__ ((__packed__)) {
+            uint8_t devEUI[8];
+            uint8_t joinEUI[8];
+            uint8_t appKey[16];
+            uint8_t effectN;
+            uint8_t brightness;
+        };
+    } i2cRegs;
 
     int slave_process_addr_match(int rw);
     void slave_process_rx_byte(uint8_t val);

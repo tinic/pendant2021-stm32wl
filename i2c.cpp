@@ -24,6 +24,8 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 #include "main.h"
 #include "app_lorawan.h"
+#include "secure-element.h"
+#include "user_app.h"
 
 #include <memory.h>
 #include <stdio.h>
@@ -53,7 +55,6 @@ i2c &i2c::instance() {
 
 void i2c::init() {
 	memset(this, 0, sizeof(i2c));
-	update();
 
     I2C2->CR1 = I2C_CR1_STOPIE | I2C_CR1_ADDRIE | I2C_CR1_RXIE | I2C_CR1_TXIE;
     I2C2->CR2 = 0;
@@ -64,6 +65,8 @@ void i2c::init() {
     i2cReg = 0;
     i2cStatus = Stop;
 
+	update();
+
     NVIC_SetPriority(I2C2_EV_IRQn, 0);
     NVIC_EnableIRQ(I2C2_EV_IRQn);
 
@@ -72,6 +75,10 @@ void i2c::init() {
 }
 
 void i2c::update() {
+    // populate slave driven registers
+    memcpy(&i2cRegs.devEUI[0], SecureElementGetDevEui(), 8);
+    memcpy(&i2cRegs.joinEUI[0], SecureElementGetJoinEui(), 8);
+    memcpy(&i2cRegs.appKey[0], lora_app_key(), 16);
 }
 
 int i2c::slave_process_addr_match(int) {
@@ -94,7 +101,7 @@ void i2c::slave_process_rx_byte(uint8_t val) {
         } break;
         case HaveAddr: {
             i2cStatus = WaitForStop;
-            i2cRegBank[i2cReg] = val;
+            i2cRegs.regs[i2cReg] = val;
         } break;
         default: {
         } break;
@@ -111,9 +118,9 @@ uint8_t i2c::slave_process_tx_byte(void) {
         case Stop: // Assume we want register 0
         case WaitAddr: // Assume we want register 0
         case HaveAddr: {
-            static_assert(sizeof(i2cRegBank) == 256 && 
+            static_assert(sizeof(i2cRegs.regs) == 256 && 
                           std::is_same<decltype(i2cReg), uint8_t>::value);
-            return i2cRegBank[i2cReg++];
+            return i2cRegs.regs[i2cReg++];
         } break;
         default: {
         } break;

@@ -28,10 +28,10 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 extern "C" {
 #endif  // #ifdef __cplusplus
 
-const uint8_t *lora_encode_packet(uint8_t *len);
+const uint8_t *lora_encode_packet(size_t *len);
 void lora_decode_packet(const uint8_t *packet, size_t len);
 
-void lora_get_app_key(uint8_t *key, size_t len);
+const uint8_t *lora_app_key();
 
 void system_init();
 void system_process();

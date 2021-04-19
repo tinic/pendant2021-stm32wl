@@ -27,8 +27,9 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #include "secure-element.h"
 
 #include <stdio.h>
+#include <memory.h>
 
-const uint8_t *lora_encode_packet(uint8_t *len) {
+const uint8_t *lora_encode_packet(size_t *len) {
 	static OutBitStream bitstream;
 
 	bitstream.Reset();
@@ -52,10 +53,14 @@ void lora_decode_packet(const uint8_t *packet, size_t len) {
 	bitstream.GetBits(8);
 }
 
-void lora_get_app_key(uint8_t *key, size_t len) {
-	if (len == 16) {
-		MurmurHash3_128(SecureElementGetDevEui(),8,0xDEAD,key);
+const uint8_t *lora_app_key() {
+	static uint8_t devEui[8] = { };
+	static uint8_t appKey[16] = { };
+	if (memcmp(devEui, SecureElementGetDevEui(), 8) != 0) {
+		memcpy(devEui, SecureElementGetDevEui(), 8);
+		MurmurHash3_128(devEui,8,0xDEAD,appKey);
 	}
+	return appKey;
 }
 
 void system_init() {
@@ -64,19 +69,16 @@ void system_init() {
   printf("\r\nDevEUI: ");
   for(size_t c = 0; c < 8; c++) {
 	  printf("%02x ",SecureElementGetDevEui()[c]);
-	  i2c::instance().set(c,SecureElementGetDevEui()[c]);
   }
   printf("\r\nAppKey: ");
-  uint8_t key[16];
-  lora_get_app_key(key, 16);
   for(size_t c = 0; c < 16; c++) {
-	  printf("%02x ",key[c]);
-	  i2c::instance().set(c+8,key[c]);
+	  printf("%02x ",lora_app_key()[c]);
   }
   printf("\r\n");
 }
 
 void system_process() {
 	i2c::instance().update();
-	printf("Effect: %d\r\n", i2c::instance().get(0x66));
+	printf("Effect: %d\r\n", i2c::instance().getEffect());
+	printf("Brightness: %d\r\n", i2c::instance().getBrightness());
 }
