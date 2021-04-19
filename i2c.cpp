@@ -134,10 +134,11 @@ const uint8_t *i2c::encodeForLora(uint8_t &len, uint8_t &port) {
 
         bitstream.PutUint8((i2cRegs.systemTime>>0)&0xFF);
         bitstream.PutUint8((i2cRegs.systemTime>>8)&0xFF);
-        
+
         bitstream.PutUint8(i2cRegs.effectN);
         bitstream.PutUint8(i2cRegs.temperature);
         bitstream.PutUint8(i2cRegs.humidity);
+        bitstream.PutUint8(i2cRegs.batteryVoltage);
 
     } else { // > DR_0
         port = 2;
