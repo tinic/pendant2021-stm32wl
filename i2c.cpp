@@ -194,17 +194,8 @@ void i2c::slave_ev_irq_handler() {
     if ((isr & I2C_ISR_RXNE) != 0) {
         slave_process_rx_byte(I2C2->RXDR);
     }
-    if ((isr & I2C_ISR_ARLO) != 0) {
-        I2C2->ICR = I2C_ICR_ARLOCF;
-    }
     if ((isr & I2C_ISR_NACKF) != 0) {
         I2C2->ICR = I2C_ICR_NACKCF;
-    }
-    if ((isr & I2C_ICR_BERRCF) != 0) {
-        I2C2->ICR = I2C_ICR_BERRCF;
-    }
-    if ((isr & I2C_ICR_OVRCF) != 0) {
-        I2C2->ICR = I2C_ICR_OVRCF;
     }
     if ((isr & I2C_ISR_STOPF) != 0) {
         I2C2->ICR = I2C_ICR_STOPCF;
@@ -219,5 +210,14 @@ void i2c::slave_ev_irq_handler() {
 }
 
 void i2c::slave_err_irq_handler() {
-    printf("slave_err_irq_handler!\r\n");
+    uint32_t isr = I2C2->ISR;
+    if ((isr & I2C_ISR_ARLO) != 0) {
+        I2C2->ICR = I2C_ICR_ARLOCF;
+    }
+    if ((isr & I2C_ISR_BERR) != 0) {
+        I2C2->ICR = I2C_ICR_BERRCF;
+    }
+    if ((isr & I2C_ISR_OVR) != 0) {
+        I2C2->ICR = I2C_ICR_OVRCF;
+    }
 }
