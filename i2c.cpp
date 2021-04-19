@@ -118,16 +118,23 @@ float i2c::Humidity() const {
 }
 
 void i2c::encodeForLora(OutBitStream &bitstream) {
+
 	bitstream.FlushBits();
-    bitstream.PutUint16(i2cRegs.systemTime);
-    bitstream.PutUint8(i2cRegs.effectN);
+
+    // These are likely to be 0 or low
+    bitstream.PutExpGolomb(i2cRegs.systemTime);
+    bitstream.PutExpGolomb(i2cRegs.effectN);
+    bitstream.PutExpGolomb(i2cRegs.chargeCurrent);
+    bitstream.PutExpGolomb(i2cRegs.vbusVoltage);
+
+	bitstream.FlushBits();
+
+    // Unlikely to be zero or low
+    bitstream.PutUint8(i2cRegs.temperature);
+    bitstream.PutUint8(i2cRegs.humidity);
     bitstream.PutUint8(i2cRegs.brightness);
     bitstream.PutUint8(i2cRegs.batteryVoltage);
     bitstream.PutUint8(i2cRegs.systemVoltage);
-    bitstream.PutUint8(i2cRegs.vbusVoltage);
-    bitstream.PutUint8(i2cRegs.chargeCurrent);
-    bitstream.PutUint8(i2cRegs.temperature);
-    bitstream.PutUint8(i2cRegs.humidity);
 }
 
 int i2c::slave_process_addr_match(int) {
