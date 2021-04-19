@@ -134,6 +134,7 @@ const uint8_t *i2c::encodeForLora(uint8_t &len, uint8_t &port) {
 
         bitstream.PutUint8((i2cRegs.systemTime>>0)&0xFF);
         bitstream.PutUint8((i2cRegs.systemTime>>8)&0xFF);
+        
         bitstream.PutUint8(i2cRegs.effectN);
         bitstream.PutUint8(i2cRegs.temperature);
         bitstream.PutUint8(i2cRegs.humidity);
@@ -141,20 +142,17 @@ const uint8_t *i2c::encodeForLora(uint8_t &len, uint8_t &port) {
     } else { // > DR_0
         port = 2;
 
-        // These are likely to be 0 or low
-        bitstream.PutExpGolomb(i2cRegs.systemTime);
-        bitstream.PutExpGolomb(i2cRegs.effectN);
-        bitstream.PutExpGolomb(i2cRegs.chargeCurrent);
-        bitstream.PutExpGolomb(i2cRegs.vbusVoltage);
+        bitstream.PutUint8((i2cRegs.systemTime>>0)&0xFF);
+        bitstream.PutUint8((i2cRegs.systemTime>>8)&0xFF);
 
-        bitstream.FlushBits();
-
-        // Unlikely to be zero or low
-        bitstream.PutUint8(i2cRegs.temperature);
-        bitstream.PutUint8(i2cRegs.humidity);
+        bitstream.PutUint8(i2cRegs.effectN);
         bitstream.PutUint8(i2cRegs.brightness);
         bitstream.PutUint8(i2cRegs.batteryVoltage);
         bitstream.PutUint8(i2cRegs.systemVoltage);
+        bitstream.PutUint8(i2cRegs.vbusVoltage);
+        bitstream.PutUint8(i2cRegs.chargeCurrent);
+        bitstream.PutUint8(i2cRegs.temperature);
+        bitstream.PutUint8(i2cRegs.humidity);
     }
 
     bitstream.FlushBits();
