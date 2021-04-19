@@ -46,7 +46,7 @@ public:
     float Temperature() const;
     float Humidity() const;
 
-    void encodeForLora(OutBitStream &bitstream, size_t dataLimit);
+    const uint8_t *encodeForLora(uint8_t &len, uint8_t &port);
 
 private:
 

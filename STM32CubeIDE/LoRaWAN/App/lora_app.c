@@ -206,9 +206,7 @@ static void JoinNetwork() {
 
 static void SendTxData(void) {
 #ifdef USER_APP_BUILD
-  size_t len = 0;
-	TxData.Buffer = (uint8_t *)lora_encode_packet(&len);
-  TxData.BufferSize = (uint8_t)len;
+	TxData.Buffer = (uint8_t *)lora_encode_packet(&TxData.BufferSize, &TxData.Port);
 #else  //#ifdef USER_APP_BUILD
 	TxData.Buffer = 0;
 	TxData.BufferSize = 0;

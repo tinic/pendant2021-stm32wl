@@ -28,7 +28,7 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 extern "C" {
 #endif  // #ifdef __cplusplus
 
-const uint8_t *lora_encode_packet(size_t *len);
+const uint8_t *lora_encode_packet(uint8_t *len, uint8_t *port);
 void lora_decode_packet(const uint8_t *packet, size_t len);
 
 const uint8_t *lora_app_key();

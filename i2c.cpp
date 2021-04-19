@@ -26,6 +26,9 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #include "app_lorawan.h"
 #include "secure-element.h"
 #include "user_app.h"
+#include "Region.h"
+#include "RegionUS915.h"
+#include "LmHandler.h"
 
 #include <memory.h>
 #include <stdio.h>
@@ -117,11 +120,18 @@ float i2c::Humidity() const {
     return u82f(i2cRegs.humidity, 0.0f, 1.0f);
 }
 
-void i2c::encodeForLora(OutBitStream &bitstream, size_t dataLimit) {
 
-	bitstream.FlushBits();
+const uint8_t *i2c::encodeForLora(uint8_t &len, uint8_t &port) {
 
-    if (dataLimit <= 11) { // DR_0
+	static OutBitStream bitstream;
+
+	int8_t dataRate = DR_0;
+	LmHandlerGetTxDatarate(&dataRate);
+
+	bitstream.Reset();
+
+    if (dataRate == DR_0) {
+		port = 1;
 
         bitstream.PutUint8((i2cRegs.systemTime>>0)&0xFF);
         bitstream.PutUint8((i2cRegs.systemTime>>8)&0xFF);
@@ -130,6 +140,7 @@ void i2c::encodeForLora(OutBitStream &bitstream, size_t dataLimit) {
         bitstream.PutUint8(i2cRegs.humidity);
 
     } else { // > DR_0
+		port = 2;
 
         // These are likely to be 0 or low
         bitstream.PutExpGolomb(i2cRegs.systemTime);
@@ -147,6 +158,13 @@ void i2c::encodeForLora(OutBitStream &bitstream, size_t dataLimit) {
         bitstream.PutUint8(i2cRegs.systemVoltage);
     }
 
+	bitstream.FlushBits();
+
+	len = uint8_t(bitstream.Position());
+
+	printf("Data Size: %d Port: %d\r\n", int(len), int(port));
+
+    return bitstream.Buffer();
 }
 
 int i2c::slave_process_addr_match(int) {
