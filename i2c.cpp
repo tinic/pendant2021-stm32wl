@@ -161,7 +161,7 @@ const uint8_t *i2c::encodeForLora(uint8_t &len, uint8_t &port) {
 
     len = uint8_t(bitstream.Position());
 
-    printf("Data Size: %d Port: %d\r\n", int(len), int(port));
+    printf("Data Size: %d Port: %d BatteryVoltage %f\r\n", int(len), int(port), double(BatteryVoltage()));
 
     return bitstream.Buffer();
 }
