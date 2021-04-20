@@ -26,12 +26,9 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 class InBitStream {
 public:
-    InBitStream(const uint8_t *_buf, size_t _len)
-    : m_buf(_buf),
-        m_len(_len),
-        m_pos(0),
-        m_bitBuf(0),
-        m_bitPos(0) {
+    InBitStream(const uint8_t *_buf, size_t _len): 
+        m_buf(_buf),
+        m_len(_len) {
     }
 
     void SeekToStart() { m_pos = 0; }
@@ -43,10 +40,8 @@ public:
         }
     }
 
-    const uint8_t *Buffer() const { return m_buf; }
-
     size_t Position() const { return m_pos - (uint32_t(m_bitPos) >> 3); }
-    size_t Length() const { return m_len; }
+    const uint8_t *Buffer() const { return m_buf; }
 
     bool IsEOF() const { return m_pos >= m_len; }
 
@@ -179,49 +174,29 @@ public:
     }
 
 private:
-    const uint8_t *m_buf;
-    size_t m_len;
-    size_t m_pos;
 
-    uint32_t m_bitBuf;
-    int32_t m_bitPos;
+    const uint8_t *m_buf = 0;
+    size_t m_len = 0;
+    size_t m_pos = 0;
+    uint32_t m_bitBuf = 0;
+    int32_t m_bitPos = 0;
 };
 
-template<size_t Size>
-class OutBitStream {
+template<size_t Bytes> class OutBitStream {
 
 public:
-    OutBitStream()
-    : m_len(sizeof(m_buf)),
-        m_pos(0),
-        m_bitBuf(0),
-        m_bitPos(0) {
-    }
-
-    OutBitStream(const OutBitStream &from)
-    : m_len(sizeof(m_buf)),
-        m_pos(0),
-        m_bitBuf(0),
-        m_bitPos(0) {
-        PutBytes(from.Buffer(), from.Length());
-    }
-
-    ~OutBitStream() {
-    }
-
-    void Reset() { m_pos = 0; m_len = 0; InitBits(); }
+    void Reset() { m_pos = 0; InitBits(); }
 
     size_t Position() const { return m_pos; }
-    size_t Length() const { return m_len; }
     const uint8_t *Buffer() const { return m_buf.data(); }
 
-    void SetPosition(size_t pos) {
-        m_pos = pos;
-    }
-
     void PutUint8(uint8_t v) {
+        if (m_pos >= sizeof(m_buf) ) {
+            return;
+        }
         m_buf[m_pos++] = v;
     }
+
     void PutUint16(uint16_t v) {
         PutUint8(uint8_t((v>>8)&0xFF));
         PutUint8(uint8_t((v>>0)&0xFF));
@@ -294,26 +269,12 @@ public:
         PutExpGolomb(uint32_t(v));
     }
 
-    OutBitStream &operator=(const OutBitStream &from) {
-        if (&from == this) {
-            return *this;
-        }
-        m_bitBuf = 0;
-        m_bitPos = 0;
-        Reset();
-        PutBytes(from.Buffer(), from.Length());
-        return *this;
-    }
-
 private:
+    std::array<uint8_t, Bytes> m_buf;
 
-    std::array<uint8_t, Size> m_buf; // Max LoraWAN packet size
-
-    size_t m_len;
-    size_t m_pos;
-
-    uint32_t m_bitBuf;
-    int32_t m_bitPos;
+    size_t m_pos = 0;
+    uint32_t m_bitBuf = 0;
+    int32_t m_bitPos = 0;
 };
 
 #endif  // #ifndef _BITSTREAM_H_
