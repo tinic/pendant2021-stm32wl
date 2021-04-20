@@ -122,7 +122,7 @@ float i2c::Humidity() const {
 
 const uint8_t *i2c::encodeForLora(uint8_t &len, uint8_t &port) {
 
-    static OutBitStream bitstream;
+    static OutBitStream<128> bitstream;
 
     int8_t dataRate = DR_0;
     LmHandlerGetTxDatarate(&dataRate);

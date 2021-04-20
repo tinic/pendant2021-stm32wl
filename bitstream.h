@@ -22,6 +22,7 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 #include <stdint.h>
 #include <memory.h>
+#include <array>
 
 class InBitStream {
 public:
@@ -186,6 +187,7 @@ private:
     int32_t m_bitPos;
 };
 
+template<size_t Size>
 class OutBitStream {
 
 public:
@@ -211,7 +213,7 @@ public:
 
     size_t Position() const { return m_pos; }
     size_t Length() const { return m_len; }
-    const uint8_t *Buffer() const { return m_buf; }
+    const uint8_t *Buffer() const { return m_buf.data(); }
 
     void SetPosition(size_t pos) {
         m_pos = pos;
@@ -305,7 +307,7 @@ public:
 
 private:
 
-    uint8_t m_buf[222]; // Max LoraWAN packet size
+    std::array<uint8_t, Size> m_buf; // Max LoraWAN packet size
 
     size_t m_len;
     size_t m_pos;
