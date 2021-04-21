@@ -100,7 +100,7 @@ public:
         int32_t bPos = m_bitPos;
         uint32_t bBuf = m_bitBuf;
         if (bPos == 0) {
-            bBuf = GetUint32();
+            bBuf = GetUint32BE();
             bPos = 32;
         }
         uint32_t v = bBuf >> 31;
@@ -120,7 +120,7 @@ public:
                 v   = bBuf >> (32 - bPos);
                 n  -= uint32_t(bPos);
                 v <<= n;
-                bBuf = GetUint32();
+                bBuf = GetUint32BE();
                 bPos = 32;
             }
             v |= bBuf >> (32 - n);
@@ -147,7 +147,7 @@ public:
                 v   = bBuf >> (32 - bPos);
                 n  -= uint32_t(bPos);
                 v <<= n;
-                bBuf = GetUint32();
+                bBuf = GetUint32BE();
                 bPos = 32;
             }
             v |= bBuf >> (32-n);

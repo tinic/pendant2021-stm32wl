@@ -158,6 +158,7 @@ const uint8_t *i2c::encodeForLora(uint8_t &len, uint8_t &port) {
 
         if ((++counter % 16) == 0) {
             port = 3;
+
             bitstream.PutUint8(i2cRegs.ring_color[0]);
             bitstream.PutUint8(i2cRegs.ring_color[1]);
             bitstream.PutUint8(i2cRegs.ring_color[2]);
