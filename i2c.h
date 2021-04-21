@@ -79,6 +79,16 @@ private:
             uint8_t chargeCurrent;
             uint8_t temperature;
             uint8_t humidity;
+
+            uint8_t ring_color[4];
+            uint8_t bird_color[4];
+
+            uint16_t switch1Count;
+            uint16_t switch2Count;
+            uint16_t switch3Count;
+            uint16_t bootCount;
+            uint16_t intCount;
+            uint16_t dselCount;
         };
     } i2cRegs;
 

@@ -53,16 +53,28 @@ public:
         return 0;
     }
 
-    uint16_t GetUint16() {
+    uint16_t GetUint16BE() {
         return  uint16_t((GetUint8() <<  8)|
-                        GetUint8() <<  0);
+                         (GetUint8() <<  0));
     }
 
-    uint32_t GetUint32() {
+    uint16_t GetUint16LE() {
+        return  uint16_t((GetUint8() <<  0)|
+                         (GetUint8() <<  8));
+    }
+
+    uint32_t GetUint32BE() {
         return  uint32_t((GetUint8() << 24)|
-                        (GetUint8() << 16)|
-                        (GetUint8() <<  8)|
-                        GetUint8() <<  0);
+                         (GetUint8() << 16)|
+                         (GetUint8() <<  8)|
+                         (GetUint8() <<  0));
+    }
+
+    uint32_t GetUint32LE() {
+        return  uint32_t((GetUint8() <<  0)|
+                         (GetUint8() <<  8)|
+                         (GetUint8() << 16)|
+                         (GetUint8() << 24));
     }
 
     uint8_t PeekUint8(size_t off) const {
@@ -197,15 +209,28 @@ public:
         m_buf[m_pos++] = v;
     }
 
-    void PutUint16(uint16_t v) {
+    void PutUint16BE(uint16_t v) {
         PutUint8(uint8_t((v>>8)&0xFF));
         PutUint8(uint8_t((v>>0)&0xFF));
     }
-    void PutUint32(uint32_t v) {
+
+    void PutUint16LE(uint16_t v) {
+        PutUint8(uint8_t((v>>0)&0xFF));
+        PutUint8(uint8_t((v>>8)&0xFF));
+    }
+
+    void PutUint32BE(uint32_t v) {
         PutUint8((v>>24)&0xFF);
         PutUint8((v>>16)&0xFF);
         PutUint8((v>> 8)&0xFF);
         PutUint8((v>> 0)&0xFF);
+    }
+
+    void PutUint32LE(uint32_t v) {
+        PutUint8((v>> 0)&0xFF);
+        PutUint8((v>> 8)&0xFF);
+        PutUint8((v>>16)&0xFF);
+        PutUint8((v>>24)&0xFF);
     }
 
     void PutBytes(const uint8_t *data, size_t dataLen) {

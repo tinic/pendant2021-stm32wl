@@ -9,42 +9,48 @@ function u82f(v, min, max) {
 }
 
 function Decode(fPort, bytes, variables) {
+  var c = 0;
   if (fPort == 1) {
-    var systemTime = (bytes[0]<<0) | (bytes[1]<<8);
-    var effectN = bytes[2];
-    var temperature = u82f(bytes[3], 0.0, 50.0);
-    var humidity = u82f(bytes[4], 0.0, 1.0);
-    var batteryVoltage = u82f(bytes[5], 2.7, 4.2);
     return {
-      "systemTime" : systemTime,
-      "effectN" : effectN,
-      "temperature" : temperature,
-      "humidity" : humidity,
-      "batteryVoltage" : batteryVoltage
+        "systemTime" : ((bytes[c++]<<0) | (bytes[c++]<<8)),
+        "effectN" : (bytes[c++]),
+        "temperature" : (u82f(bytes[c++], 0.0, 50.0)),
+        "humidity" : (u82f(bytes[c++], 0.0, 1.0)),
+        "batteryVoltage" : (u82f(bytes[c++], 2.7, 4.2))
     };
-  }
-  if (fPort == 2) {
-    var systemTime = (bytes[0]<<0) | (bytes[1]<<8);
-    var status = bytes[2];
-    var effectN = bytes[3];
-    var brightness = u82f(bytes[4], 0.0, 1.0);
-    var batteryVoltage = bytes[5] ? u82f(bytes[5], 2.7, 4.2) : 0;
-    var systemVoltage = bytes[6] ? u82f(bytes[6], 2.7, 4.2) : 0;
-    var vbusVoltage = u82f(bytes[7], 0.0, 5.5);
-    var chargeCurrent = u82f(bytes[8], 0.0, 1000.0);
-    var temperature = u82f(bytes[9], 0.0, 50.0);
-    var humidity = u82f(bytes[10], 0.0, 1.0);
+  } else if (fPort == 2) {
     return {
-      "systemTime" : systemTime,
-      "status" : status,
-      "effectN" : effectN,
-      "brightness" : brightness,
-      "batteryVoltage" : batteryVoltage,
-      "systemVoltage" : systemVoltage,
-      "vbusVoltage" : vbusVoltage,
-      "chargeCurrent" : chargeCurrent,
-      "temperature" : temperature,
-      "humidity" : humidity
+        "systemTime" : ((bytes[c++]<<0) | (bytes[c++]<<8)),
+        "status" : (bytes[c++]),
+        "effectN" : (bytes[c++]),
+        "brightness" : (u82f(bytes[c++], 0.0, 1.0)),
+        "batteryVoltage" : (bytes[c++] ? u82f(bytes[c++], 2.7, 4.2) : 0),
+        "systemVoltage" : (bytes[c++] ? u82f(bytes[c++], 2.7, 4.2) : 0),
+        "vbusVoltage" : (u82f(bytes[c++], 0.0, 5.5)),
+        "chargeCurrent" : (u82f(bytes[c++], 0.0, 1000.0)),
+        "temperature" : (u82f(bytes[c++], 0.0, 50.0)),
+        "humidity" : (u82f(bytes[c++], 0.0, 1.0))
+      };
+  } else if (fPort == 3) {
+    return {
+        "systemTime" : ((bytes[c++]<<0) | (bytes[c++]<<8)),
+        "status" : (bytes[c++]),
+        "effectN" : (bytes[c++]),
+        "brightness" : (u82f(bytes[c++], 0.0, 1.0)),
+        "batteryVoltage" : (bytes[c++] ? u82f(bytes[c++], 2.7, 4.2) : 0),
+        "systemVoltage" : (bytes[c++] ? u82f(bytes[c++], 2.7, 4.2) : 0),
+        "vbusVoltage" : (u82f(bytes[c++], 0.0, 5.5)),
+        "chargeCurrent" : (u82f(bytes[c++], 0.0, 1000.0)),
+        "temperature" : (u82f(bytes[c++], 0.0, 50.0)),
+        "humidity" : (u82f(bytes[c++], 0.0, 1.0)),
+        "ringColor" : [ bytes[c++], bytes[c++], bytes[c++], bytes[c++] ],
+        "birdColor" : [ bytes[c++], bytes[c++], bytes[c++], bytes[c++] ],
+        "switch1Count" : ((bytes[c++]<<0) | (bytes[c++]<<8)),
+        "switch2Count" : ((bytes[c++]<<0) | (bytes[c++]<<8)),
+        "switch3Count" : ((bytes[c++]<<0) | (bytes[c++]<<8)),
+        "bootCount" : ((bytes[c++]<<0) | (bytes[c++]<<8)),
+        "intCount" : ((bytes[c++]<<0) | (bytes[c++]<<8)),
+        "dselCount" : ((bytes[c++]<<0) | (bytes[c++]<<8))
     };
   }
   return {};

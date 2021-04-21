@@ -132,8 +132,7 @@ const uint8_t *i2c::encodeForLora(uint8_t &len, uint8_t &port) {
     if (dataRate == DR_0) {
         port = 1;
 
-        bitstream.PutUint8((i2cRegs.systemTime>>0)&0xFF);
-        bitstream.PutUint8((i2cRegs.systemTime>>8)&0xFF);
+        bitstream.PutUint16LE(i2cRegs.systemTime);
 
         bitstream.PutUint8(i2cRegs.effectN);
         bitstream.PutUint8(i2cRegs.temperature);
@@ -143,8 +142,7 @@ const uint8_t *i2c::encodeForLora(uint8_t &len, uint8_t &port) {
     } else { // > DR_0
         port = 2;
 
-        bitstream.PutUint8((i2cRegs.systemTime>>0)&0xFF);
-        bitstream.PutUint8((i2cRegs.systemTime>>8)&0xFF);
+        bitstream.PutUint16LE(i2cRegs.systemTime);
 
         bitstream.PutUint8(i2cRegs.status);
         bitstream.PutUint8(i2cRegs.effectN);
@@ -155,13 +153,35 @@ const uint8_t *i2c::encodeForLora(uint8_t &len, uint8_t &port) {
         bitstream.PutUint8(i2cRegs.chargeCurrent);
         bitstream.PutUint8(i2cRegs.temperature);
         bitstream.PutUint8(i2cRegs.humidity);
+
+        static uint32_t counter = 0;
+
+        if ((++counter % 16) == 0) {
+            port = 3;
+            bitstream.PutUint8(i2cRegs.ring_color[0]);
+            bitstream.PutUint8(i2cRegs.ring_color[1]);
+            bitstream.PutUint8(i2cRegs.ring_color[2]);
+            bitstream.PutUint8(i2cRegs.ring_color[3]);
+
+            bitstream.PutUint8(i2cRegs.bird_color[0]);
+            bitstream.PutUint8(i2cRegs.bird_color[1]);
+            bitstream.PutUint8(i2cRegs.bird_color[2]);
+            bitstream.PutUint8(i2cRegs.bird_color[3]);
+
+            bitstream.PutUint16LE(i2cRegs.switch1Count);
+            bitstream.PutUint16LE(i2cRegs.switch2Count);
+            bitstream.PutUint16LE(i2cRegs.switch3Count);
+            bitstream.PutUint16LE(i2cRegs.bootCount);
+            bitstream.PutUint16LE(i2cRegs.intCount);
+            bitstream.PutUint16LE(i2cRegs.dselCount);
+        }
     }
 
     bitstream.FlushBits();
 
     len = uint8_t(bitstream.Position());
 
-    printf("Data Size: %d Port: %d BatteryVoltage %f\r\n", int(len), int(port), double(BatteryVoltage()));
+    printf("Time: %d Data Size: %d Port: %d BatteryVoltage %f\r\n", int(i2cRegs.systemTime), int(len), int(port), double(BatteryVoltage()));
 
     return bitstream.Buffer();
 }
