@@ -24,8 +24,8 @@ function Decode(fPort, bytes, variables) {
         "status" : (bytes[c++]),
         "effectN" : (bytes[c++]),
         "brightness" : (u82f(bytes[c++], 0.0, 1.0)),
-        "batteryVoltage" : (bytes[c++] ? u82f(bytes[c++], 2.7, 4.2) : 0),
-        "systemVoltage" : (bytes[c++] ? u82f(bytes[c++], 2.7, 4.2) : 0),
+        "batteryVoltage" : (bytes[c] ? u82f(bytes[c++], 2.7, 4.2) : 0),
+        "systemVoltage" : (bytes[c] ? u82f(bytes[c++], 2.7, 4.2) : 0),
         "vbusVoltage" : (u82f(bytes[c++], 0.0, 5.5)),
         "chargeCurrent" : (u82f(bytes[c++], 0.0, 1000.0)),
         "temperature" : (u82f(bytes[c++], 0.0, 50.0)),
@@ -37,8 +37,8 @@ function Decode(fPort, bytes, variables) {
         "status" : (bytes[c++]),
         "effectN" : (bytes[c++]),
         "brightness" : (u82f(bytes[c++], 0.0, 1.0)),
-        "batteryVoltage" : (bytes[c++] ? u82f(bytes[c++], 2.7, 4.2) : 0),
-        "systemVoltage" : (bytes[c++] ? u82f(bytes[c++], 2.7, 4.2) : 0),
+        "batteryVoltage" : (bytes[c] ? u82f(bytes[c++], 2.7, 4.2) : 0),
+        "systemVoltage" : (bytes[c] ? u82f(bytes[c++], 2.7, 4.2) : 0),
         "vbusVoltage" : (u82f(bytes[c++], 0.0, 5.5)),
         "chargeCurrent" : (u82f(bytes[c++], 0.0, 1000.0)),
         "temperature" : (u82f(bytes[c++], 0.0, 50.0)),
@@ -55,3 +55,5 @@ function Decode(fPort, bytes, variables) {
   }
   return {};
 }
+
+console.log(Decode(2,[0x30, 0x01, 0x36, 0x00, 0x19, 0xdd, 0xdd, 0xe7, 0x72, 0x8c, 0x4c]));
