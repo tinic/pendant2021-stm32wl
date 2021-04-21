@@ -202,31 +202,36 @@ public:
     size_t Position() const { return m_pos; }
     const uint8_t *Buffer() const { return m_buf.data(); }
 
-    void PutUint8(uint8_t v) {
+    void PutUint8(auto v) {
+        static_assert(std::is_same<decltype(v), uint8_t>::value, "value must be uint8_t");
         if (m_pos >= sizeof(m_buf) ) {
             return;
         }
         m_buf[m_pos++] = v;
     }
 
-    void PutUint16BE(uint16_t v) {
+    void PutUint16BE(auto v) {
+        static_assert(std::is_same<decltype(v), uint16_t>::value, "value must be uint16_t");
         PutUint8(uint8_t((v>>8)&0xFF));
         PutUint8(uint8_t((v>>0)&0xFF));
     }
 
-    void PutUint16LE(uint16_t v) {
+    void PutUint16LE(auto v) {
+        static_assert(std::is_same<decltype(v), uint16_t>::value, "value must be uint16_t");
         PutUint8(uint8_t((v>>0)&0xFF));
         PutUint8(uint8_t((v>>8)&0xFF));
     }
 
-    void PutUint32BE(uint32_t v) {
+    void PutUint32BE(auto v) {
+        static_assert(std::is_same<decltype(v), uint32_t>::value, "value must be uint32_t");
         PutUint8((v>>24)&0xFF);
         PutUint8((v>>16)&0xFF);
         PutUint8((v>> 8)&0xFF);
         PutUint8((v>> 0)&0xFF);
     }
 
-    void PutUint32LE(uint32_t v) {
+    void PutUint32LE(auto v) {
+        static_assert(std::is_same<decltype(v), uint32_t>::value, "value must be uint32_t");
         PutUint8((v>> 0)&0xFF);
         PutUint8((v>> 8)&0xFF);
         PutUint8((v>>16)&0xFF);
