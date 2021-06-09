@@ -422,7 +422,7 @@ int32_t LmHandlerGetTxDatarate(int8_t *txDatarate);
  */
 int32_t LmHandlerSetTxDatarate(int8_t txDatarate);
 
-/*! 
+/*!
  * \brief Gets the duty cycle flag
  *
  * \param [out] dutyCycleEnable duty cycle flag
