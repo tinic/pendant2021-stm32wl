@@ -1,3 +1,4 @@
+/* USER CODE BEGIN Header */
 /**
   ******************************************************************************
   * @file    utilities_def.h
@@ -16,6 +17,7 @@
   *
   ******************************************************************************
   */
+/* USER CODE END Header */
 
 /* Define to prevent recursive inclusion -------------------------------------*/
 #ifndef __UTILITIES_DEF_H__
@@ -40,9 +42,11 @@ extern "C" {
   */
 typedef enum
 {
+  /* USER CODE BEGIN CFG_LPM_Id_t_0 */
+
+  /* USER CODE END CFG_LPM_Id_t_0 */
   CFG_LPM_APPLI_Id,
   CFG_LPM_UART_TX_Id,
-  CFG_LPM_TCXO_WA_Id,
   /* USER CODE BEGIN CFG_LPM_Id_t */
 
   /* USER CODE END CFG_LPM_Id_t */
@@ -71,10 +75,10 @@ typedef enum
   */
 typedef enum
 {
-  /* USER CODE BEGIN CFG_SEQ_Task_Id_t */
   CFG_SEQ_Task_LmHandlerProcess,
-  CFG_SEQ_Task_JoinNetworkTimer,
-  CFG_SEQ_Task_SendTxTimer,
+  CFG_SEQ_Task_LoRaSendOnTxTimerOrButtonEvent,
+  /* USER CODE BEGIN CFG_SEQ_Task_Id_t */
+
   /* USER CODE END CFG_SEQ_Task_Id_t */
   CFG_SEQ_Task_NBR
 } CFG_SEQ_Task_Id_t;

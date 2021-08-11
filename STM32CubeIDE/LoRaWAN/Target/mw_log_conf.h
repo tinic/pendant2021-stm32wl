@@ -1,3 +1,4 @@
+/* USER CODE BEGIN Header */
 /**
   ******************************************************************************
   * @file    mw_log_conf.h
@@ -16,6 +17,7 @@
   *
   ******************************************************************************
   */
+/* USER CODE END Header */
 
 /* Define to prevent recursive inclusion -------------------------------------*/
 #ifndef __MW_LOG_CONF_H__
@@ -26,7 +28,7 @@ extern "C" {
 #endif
 
 /* Includes ------------------------------------------------------------------*/
-#include "sys_app.h"   /* temporay w.a waiting Ticket 92161 resolution */
+#include "stm32_adv_trace.h"
 
 /* USER CODE BEGIN Includes */
 #include <stdio.h>
@@ -51,13 +53,9 @@ extern "C" {
 
 /* Exported macro ------------------------------------------------------------*/
 #ifdef MW_LOG_ENABLED
-/* USER CODE BEGIN Mw_Logs_En*/
-#define MW_LOG(TS,VL,...) do{ {printf(__VA_ARGS__);} }while(0);
-/* USER CODE END Mw_Logs_En */
+#define MW_LOG(TS,VL, ...)   do{ {UTIL_ADV_TRACE_COND_FSend(VL, T_REG_OFF, TS, __VA_ARGS__);} }while(0)
 #else  /* MW_LOG_ENABLED */
-/* USER CODE BEGIN Mw_Logs_Dis*/
 #define MW_LOG(TS,VL, ...)
-/* USER CODE END Mw_Logs_Dis */
 #endif /* MW_LOG_ENABLED */
 /* USER CODE BEGIN EM */
 

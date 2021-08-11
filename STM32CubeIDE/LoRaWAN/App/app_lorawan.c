@@ -1,3 +1,4 @@
+/* USER CODE BEGIN Header */
 /**
   ******************************************************************************
   * @file    app_lorawan.c
@@ -16,6 +17,7 @@
   *
   ******************************************************************************
   */
+/* USER CODE END Header */
 
 /* Includes ------------------------------------------------------------------*/
 #include "app_lorawan.h"
@@ -77,6 +79,10 @@ void MX_LoRaWAN_Process(void)
   /* USER CODE BEGIN MX_LoRaWAN_Process_1 */
   UTIL_SEQ_Run(UTIL_SEQ_DEFAULT);
   /* USER CODE END MX_LoRaWAN_Process_1 */
+  UTIL_SEQ_Run(UTIL_SEQ_DEFAULT);
+  /* USER CODE BEGIN MX_LoRaWAN_Process_2 */
+
+  /* USER CODE END MX_LoRaWAN_Process_2 */
 }
 
 /* USER CODE BEGIN EF */

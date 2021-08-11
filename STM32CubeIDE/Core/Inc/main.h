@@ -66,8 +66,11 @@ void Error_Handler(void);
 #define RF_CTRL_2_GPIO_Port GPIOA
 #define RF_CTRL_1_Pin GPIO_PIN_9
 #define RF_CTRL_1_GPIO_Port GPIOA
+void   MX_DMA_Init(void);
 void   MX_RTC_Init(void);
+void   MX_USART2_UART_Init(void);
 void   MX_SUBGHZ_Init(void);
+void   MX_ADC_Init(void);
 /* USER CODE BEGIN Private defines */
 
 /* USER CODE END Private defines */

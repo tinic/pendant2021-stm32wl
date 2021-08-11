@@ -1,3 +1,4 @@
+/* USER CODE BEGIN Header */
 /**
   ******************************************************************************
   * @file    lora_app.c
@@ -16,6 +17,7 @@
   *
   ******************************************************************************
   */
+/* USER CODE END Header */
 
 /* Includes ------------------------------------------------------------------*/
 #include "platform.h"
@@ -23,7 +25,18 @@
 #include "sys_app.h"
 #include "lora_app.h"
 #include "stm32_seq.h"
+#include "stm32_timer.h"
+#include "utilities_def.h"
+#include "lora_app_version.h"
+#include "lorawan_version.h"
+#include "subghz_phy_version.h"
+#include "lora_info.h"
 #include "LmHandler.h"
+#include "stm32_lpm.h"
+#include "adc_if.h"
+#include "sys_conf.h"
+#include "CayenneLpp.h"
+#include "sys_sensors.h"
 
 /* USER CODE BEGIN Includes */
 #include <stdio.h>
@@ -44,6 +57,24 @@
 /* USER CODE END EV */
 
 /* Private typedef -----------------------------------------------------------*/
+/**
+  * @brief LoRa State Machine states
+  */
+typedef enum TxEventType_e
+{
+  /**
+    * @brief Appdata Transmission issue based on timer every TxDutyCycleTime
+    */
+  TX_ON_TIMER,
+  /**
+    * @brief Appdata Transmission external event plugged on OnSendEvent( )
+    */
+  TX_ON_EVENT
+  /* USER CODE BEGIN TxEventType_t */
+
+  /* USER CODE END TxEventType_t */
+} TxEventType_t;
+
 /* USER CODE BEGIN PTD */
 
 /* USER CODE END PTD */
@@ -55,29 +86,37 @@
 
 /* Private macro -------------------------------------------------------------*/
 /* USER CODE BEGIN PM */
-//#define DEBUG_MSG
+#define DEBUG_MSG
 /* USER CODE END PM */
 
 /* Private function prototypes -----------------------------------------------*/
 /**
+  * @brief  LoRa End Node send request
+  */
+static void SendTxData(void);
+
+/**
+  * @brief  TX timer callback function
+  * @param  context ptr of timer context
+  */
+static void OnTxTimerEvent(void *context);
+
+/**
   * @brief  join event callback function
-  * @param  params
-  * @retval none
+  * @param  joinParams status of join
   */
 static void OnJoinRequest(LmHandlerJoinParams_t *joinParams);
 
 /**
   * @brief  tx event callback function
-  * @param  params
-  * @retval none
+  * @param  params status of last Tx
   */
 static void OnTxData(LmHandlerTxParams_t *params);
 
 /**
-  * @brief callback when LoRa endNode has received a frame
-  * @param appData
-  * @param params
-  * @retval None
+  * @brief callback when LoRa application has received a frame
+  * @param appData data received in the last Rx
+  * @param params status of last Rx
   */
 static void OnRxData(LmHandlerAppData_t *appData, LmHandlerRxParams_t *params);
 
@@ -89,21 +128,11 @@ static void OnMacProcessNotify(void);
 
 /* USER CODE BEGIN PFP */
 
-static LmHandlerAppData_t TxData = { LORAWAN_USER_APP_PORT, 0, 0 };
-
-static ActivationType_t ActivationType = LORAWAN_DEFAULT_ACTIVATION_TYPE;
-
-static UTIL_TIMER_Object_t JoinNetworkTimer = { 0 };
-static UTIL_TIMER_Object_t SendTxDataTimer = { 0 };
-
-static void OnJoinNetworkTimerEvent(void *context);
-static void OnSendTxDataTimerEvent(void *context);
-
-static void JoinNetwork(void);
-static void SendTxData(void);
 /* USER CODE END PFP */
 
 /* Private variables ---------------------------------------------------------*/
+static ActivationType_t ActivationType = LORAWAN_DEFAULT_ACTIVATION_TYPE;
+
 /**
   * @brief LoRaWAN handler Callbacks
   */
@@ -111,13 +140,17 @@ static LmHandlerCallbacks_t LmHandlerCallbacks =
 {
   .GetBatteryLevel =           GetBatteryLevel,
   .GetTemperature =            GetTemperatureLevel,
+  .GetUniqueId =               GetUniqueId,
+  .GetDevAddr =                GetDevAddr,
   .OnMacProcess =              OnMacProcessNotify,
   .OnJoinRequest =             OnJoinRequest,
   .OnTxData =                  OnTxData,
   .OnRxData =                  OnRxData
 };
 
-/* USER CODE BEGIN PV */
+/**
+  * @brief LoRaWAN handler parameters
+  */
 static LmHandlerParams_t LmHandlerParams =
 {
   .ActiveRegion =             ACTIVE_REGION,
@@ -126,6 +159,18 @@ static LmHandlerParams_t LmHandlerParams =
   .TxDatarate =               LORAWAN_DEFAULT_DATA_RATE,
   .PingPeriodicity =          LORAWAN_DEFAULT_PING_SLOT_PERIODICITY
 };
+
+/**
+  * @brief Type of Event to generate application Tx
+  */
+static TxEventType_t EventType = TX_ON_TIMER;
+
+/**
+  * @brief Timer to handle the application Tx
+  */
+static UTIL_TIMER_Object_t TxTimer;
+
+/* USER CODE BEGIN PV */
 
 /* USER CODE END PV */
 
@@ -137,23 +182,24 @@ static LmHandlerParams_t LmHandlerParams =
 void LoRaWAN_Init(void)
 {
   /* USER CODE BEGIN LoRaWAN_Init_1 */
-  UTIL_SEQ_RegTask((1 << CFG_SEQ_Task_LmHandlerProcess), UTIL_SEQ_RFU, LmHandlerProcess);
-  UTIL_SEQ_RegTask((1 << CFG_SEQ_Task_JoinNetworkTimer), UTIL_SEQ_RFU, JoinNetwork);
-  UTIL_SEQ_RegTask((1 << CFG_SEQ_Task_SendTxTimer), UTIL_SEQ_RFU, SendTxData);
 
-  LoraInfo_Init();
   /* USER CODE END LoRaWAN_Init_1 */
+
+  UTIL_SEQ_RegTask((1 << CFG_SEQ_Task_LmHandlerProcess), UTIL_SEQ_RFU, LmHandlerProcess);
+  UTIL_SEQ_RegTask((1 << CFG_SEQ_Task_LoRaSendOnTxTimerOrButtonEvent), UTIL_SEQ_RFU, SendTxData);
+  /* Init Info table used by LmHandler*/
+  LoraInfo_Init();
 
   /* Init the Lora Stack*/
   LmHandlerInit(&LmHandlerCallbacks);
 
-  /* USER CODE BEGIN LoRaWAN_Init_Last */
   LmHandlerConfigure(&LmHandlerParams);
 
-  MibRequestConfirm_t mibReq;
-  memset(&mibReq, 0, sizeof(mibReq));
+  /* USER CODE BEGIN LoRaWAN_Init_2 */
 
 #ifdef USER_APP_BUILD
+  MibRequestConfirm_t mibReq;
+  memset(&mibReq, 0, sizeof(mibReq));
 
   static uint8_t key[16];
   memcpy(key, lora_app_key(), 16);
@@ -173,55 +219,34 @@ void LoRaWAN_Init(void)
   LoRaMacMibSetRequestConfirm(&mibReq);
 #endif  // #ifdef USER_APP_BUILD
 
+  /* USER CODE END LoRaWAN_Init_2 */
+
   LmHandlerJoin(ActivationType);
 
-  UTIL_TIMER_Create(&JoinNetworkTimer, 0xFFFFFFFFU, UTIL_TIMER_ONESHOT, OnJoinNetworkTimerEvent, NULL);
-  UTIL_TIMER_SetPeriod(&JoinNetworkTimer, APP_TX_DUTYCYCLE);
+  if (EventType == TX_ON_TIMER)
+  {
+    /* send every time timer elapses */
+    UTIL_TIMER_Create(&TxTimer,  0xFFFFFFFFU, UTIL_TIMER_ONESHOT, OnTxTimerEvent, NULL);
+    UTIL_TIMER_SetPeriod(&TxTimer,  APP_TX_DUTYCYCLE);
+    UTIL_TIMER_Start(&TxTimer);
+  }
+  else
+  {
+    /* USER CODE BEGIN LoRaWAN_Init_3 */
+    /* USER CODE END LoRaWAN_Init_3 */
+  }
 
-  UTIL_TIMER_Create(&SendTxDataTimer, 0xFFFFFFFFU, UTIL_TIMER_PERIODIC, OnSendTxDataTimerEvent, NULL);
-  UTIL_TIMER_SetPeriod(&SendTxDataTimer, APP_TX_DUTYCYCLE);
+  /* USER CODE BEGIN LoRaWAN_Init_Last */
 
-  UTIL_LPM_Init();
-  UTIL_LPM_SetOffMode((1 << CFG_LPM_APPLI_Id), UTIL_LPM_DISABLE);
-  UTIL_LPM_SetStopMode((1 << CFG_LPM_APPLI_Id), UTIL_LPM_DISABLE);
   /* USER CODE END LoRaWAN_Init_Last */
 }
 
+/* USER CODE BEGIN PB_Callbacks */
+
+/* USER CODE END PB_Callbacks */
+
 /* Private functions ---------------------------------------------------------*/
 /* USER CODE BEGIN PrFD */
-static void OnSendTxDataTimerEvent(void *context) {
-	UTIL_SEQ_SetTask((1 << CFG_SEQ_Task_SendTxTimer), CFG_SEQ_Prio_0);
-}
-
-static void OnJoinNetworkTimerEvent(void *context) {
-	UTIL_SEQ_SetTask((1 << CFG_SEQ_Task_JoinNetworkTimer), CFG_SEQ_Prio_0);
-}
-
-static void JoinNetwork() {
-#ifdef DEBUG_MSG
-	printf("Re-Attempt join!\n");
-#endif  // #ifdef DEBUG_MSG
-	LmHandlerJoin(ActivationType);
-}
-
-static void SendTxData(void) {
-#ifdef USER_APP_BUILD
-	TxData.Buffer = (uint8_t *)lora_encode_packet(&TxData.BufferSize, &TxData.Port);
-#else  //#ifdef USER_APP_BUILD
-	TxData.Buffer = 0;
-	TxData.BufferSize = 0;
-#endif  // #ifdef PENDANT_BUILD
-	UTIL_TIMER_Time_t nextTxIn = 0;
-	if (LORAMAC_HANDLER_SUCCESS == LmHandlerSend(&TxData, LORAWAN_DEFAULT_CONFIRMED_MSG_STATE, &nextTxIn, false)) {
-#ifdef DEBUG_MSG
-		printf("SendTxData Success!\n");
-	} else if (nextTxIn > 0) {
-		printf("SendTxData Early!\n");
-	} else {
-		printf("SendTxData Fail!\n");
-#endif // #ifdef DEBUG_MSG
-	}
-}
 
 /* USER CODE END PrFD */
 
@@ -274,6 +299,31 @@ static void OnRxData(LmHandlerAppData_t *appData, LmHandlerRxParams_t *params)
   /* USER CODE END OnRxData_1 */
 }
 
+static void SendTxData(void)
+{
+  /* USER CODE BEGIN SendTxData_1 */
+
+  /* USER CODE END SendTxData_1 */
+}
+
+static void OnTxTimerEvent(void *context)
+{
+  /* USER CODE BEGIN OnTxTimerEvent_1 */
+
+  /* USER CODE END OnTxTimerEvent_1 */
+  UTIL_SEQ_SetTask((1 << CFG_SEQ_Task_LoRaSendOnTxTimerOrButtonEvent), CFG_SEQ_Prio_0);
+
+  /*Wait for next tx slot*/
+  UTIL_TIMER_Start(&TxTimer);
+  /* USER CODE BEGIN OnTxTimerEvent_2 */
+
+  /* USER CODE END OnTxTimerEvent_2 */
+}
+
+/* USER CODE BEGIN PrFD_LedEvents */
+
+/* USER CODE END PrFD_LedEvents */
+
 static void OnTxData(LmHandlerTxParams_t *params)
 {
   /* USER CODE BEGIN OnTxData_1 */
@@ -298,20 +348,14 @@ static void OnJoinRequest(LmHandlerJoinParams_t *joinParams)
 #ifdef DEBUG_MSG
 				printf("OnJoinRequest confirmed!!\n");
 #endif  // #ifdef DEBUG_MSG
-				UTIL_TIMER_Start(&SendTxDataTimer);
 			}
 		} else {
 #ifdef DEBUG_MSG
 			printf("OnJoinRequest retry\n");
 #endif  // #ifdef DEBUG_MSG
-			UTIL_TIMER_Start(&JoinNetworkTimer);
 		}
 	}
   /* USER CODE END OnJoinRequest_1 */
-
-  /* USER CODE BEGIN OnJoinRequest_2 */
-
-  /* USER CODE END OnJoinRequest_2 */
 }
 
 static void OnMacProcessNotify(void)
@@ -319,6 +363,11 @@ static void OnMacProcessNotify(void)
   /* USER CODE BEGIN OnMacProcessNotify_1 */
   UTIL_SEQ_SetTask((1 << CFG_SEQ_Task_LmHandlerProcess), CFG_SEQ_Prio_0);
   /* USER CODE END OnMacProcessNotify_1 */
+  UTIL_SEQ_SetTask((1 << CFG_SEQ_Task_LmHandlerProcess), CFG_SEQ_Prio_0);
+
+  /* USER CODE BEGIN OnMacProcessNotify_2 */
+
+  /* USER CODE END OnMacProcessNotify_2 */
 }
 
 /************************ (C) COPYRIGHT STMicroelectronics *****END OF FILE****/
