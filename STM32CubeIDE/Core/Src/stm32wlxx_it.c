@@ -251,7 +251,9 @@ void I2C1_ER_IRQHandler(void)
 void I2C2_EV_IRQHandler(void)
 {
   /* USER CODE BEGIN I2C2_EV_IRQn 0 */
+#ifdef USER_APP_BUILD
   i2c_slave_ev_irq_handler();
+#endif  // #ifdef USER_APP_BUILD
 
   /* USER CODE END I2C2_EV_IRQn 0 */
   HAL_I2C_EV_IRQHandler(&hi2c2);
@@ -266,7 +268,9 @@ void I2C2_EV_IRQHandler(void)
 void I2C2_ER_IRQHandler(void)
 {
   /* USER CODE BEGIN I2C2_ER_IRQn 0 */
+#ifdef USER_APP_BUILD
   i2c_slave_err_irq_handler();
+#endif  // #ifdef USER_APP_BUILD
 
   /* USER CODE END I2C2_ER_IRQn 0 */
   HAL_I2C_ER_IRQHandler(&hi2c2);
