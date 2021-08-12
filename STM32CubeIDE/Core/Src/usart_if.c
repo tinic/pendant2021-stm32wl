@@ -102,7 +102,7 @@ static void (*RxCpltCallback)(uint8_t *rxChar, uint16_t size, uint8_t error);
 UTIL_ADV_TRACE_Status_t vcom_Init(void (*cb)(void *))
 {
   /* USER CODE BEGIN vcom_Init_1 */
-
+  if(0){
   /* USER CODE END vcom_Init_1 */
   TxCpltCallback = cb;
   MX_DMA_Init();
@@ -110,14 +110,19 @@ UTIL_ADV_TRACE_Status_t vcom_Init(void (*cb)(void *))
   LL_EXTI_EnableIT_0_31(LL_EXTI_LINE_27);
   return UTIL_ADV_TRACE_OK;
   /* USER CODE BEGIN vcom_Init_2 */
-
+  }
+  return UTIL_ADV_TRACE_OK;
   /* USER CODE END vcom_Init_2 */
 }
 
 UTIL_ADV_TRACE_Status_t vcom_DeInit(void)
 {
   /* USER CODE BEGIN vcom_DeInit_1 */
+  __HAL_RCC_USART2_FORCE_RESET();
+  __HAL_RCC_USART2_RELEASE_RESET();
 
+  HAL_UART_MspDeInit(&huart2);
+  if(0) {
   /* USER CODE END vcom_DeInit_1 */
   /* ##-1- Reset peripherals ################################################## */
   __HAL_RCC_USART2_FORCE_RESET();
@@ -133,37 +138,41 @@ UTIL_ADV_TRACE_Status_t vcom_DeInit(void)
   return UTIL_ADV_TRACE_OK;
   /* USER CODE END 1 */
   /* USER CODE BEGIN vcom_DeInit_2 */
-
+  }
+  return UTIL_ADV_TRACE_OK;
   /* USER CODE END vcom_DeInit_2 */
 }
 
 void vcom_Trace(uint8_t *p_data, uint16_t size)
 {
   /* USER CODE BEGIN vcom_Trace_1 */
-
+  HAL_UART_Transmit(&huart2, p_data, size, 1000);
+  if (0) {
   /* USER CODE END vcom_Trace_1 */
   HAL_UART_Transmit(&huart2, p_data, size, 1000);
   /* USER CODE BEGIN vcom_Trace_2 */
-
+  }
   /* USER CODE END vcom_Trace_2 */
 }
 
 UTIL_ADV_TRACE_Status_t vcom_Trace_DMA(uint8_t *p_data, uint16_t size)
 {
   /* USER CODE BEGIN vcom_Trace_DMA_1 */
-
+  HAL_UART_Transmit(&huart2, p_data, size, 1000);
+  if (0) {
   /* USER CODE END vcom_Trace_DMA_1 */
   HAL_UART_Transmit_DMA(&huart2, p_data, size);
   return UTIL_ADV_TRACE_OK;
   /* USER CODE BEGIN vcom_Trace_DMA_2 */
-
+  }
+  return UTIL_ADV_TRACE_OK;
   /* USER CODE END vcom_Trace_DMA_2 */
 }
 
 UTIL_ADV_TRACE_Status_t vcom_ReceiveInit(void (*RxCb)(uint8_t *rxChar, uint16_t size, uint8_t error))
 {
   /* USER CODE BEGIN vcom_ReceiveInit_1 */
-
+  if (0) {
   /* USER CODE END vcom_ReceiveInit_1 */
   UART_WakeUpTypeDef WakeUpSelection;
 
@@ -192,14 +201,19 @@ UTIL_ADV_TRACE_Status_t vcom_ReceiveInit(void (*RxCb)(uint8_t *rxChar, uint16_t 
 
   return UTIL_ADV_TRACE_OK;
   /* USER CODE BEGIN vcom_ReceiveInit_2 */
-
+  }
+  return UTIL_ADV_TRACE_OK;
   /* USER CODE END vcom_ReceiveInit_2 */
 }
 
 void vcom_Resume(void)
 {
   /* USER CODE BEGIN vcom_Resume_1 */
-
+  if (HAL_HalfDuplex_Init(&huart2) != HAL_OK)
+  {
+	Error_Handler();
+  }
+  if (0) {
   /* USER CODE END vcom_Resume_1 */
   /*to re-enable lost UART settings*/
   if (HAL_UART_Init(&huart2) != HAL_OK)
@@ -213,26 +227,26 @@ void vcom_Resume(void)
     Error_Handler();
   }
   /* USER CODE BEGIN vcom_Resume_2 */
-
+  }
   /* USER CODE END vcom_Resume_2 */
 }
 
 void HAL_UART_TxCpltCallback(UART_HandleTypeDef *huart2)
 {
   /* USER CODE BEGIN HAL_UART_TxCpltCallback_1 */
-
+  if(0) {
   /* USER CODE END HAL_UART_TxCpltCallback_1 */
   /* buffer transmission complete*/
   TxCpltCallback(NULL);
   /* USER CODE BEGIN HAL_UART_TxCpltCallback_2 */
-
+  }
   /* USER CODE END HAL_UART_TxCpltCallback_2 */
 }
 
 void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart2)
 {
   /* USER CODE BEGIN HAL_UART_RxCpltCallback_1 */
-
+  if (0) {
   /* USER CODE END HAL_UART_RxCpltCallback_1 */
   if ((NULL != RxCpltCallback) && (HAL_UART_ERROR_NONE == huart2->ErrorCode))
   {
@@ -240,7 +254,7 @@ void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart2)
   }
   HAL_UART_Receive_IT(huart2, &charRx, 1);
   /* USER CODE BEGIN HAL_UART_RxCpltCallback_2 */
-
+  }
   /* USER CODE END HAL_UART_RxCpltCallback_2 */
 }
 
