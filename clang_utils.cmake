@@ -19,6 +19,7 @@ macro(clang_utils_get_arm_gcc_sysroot compiler cpu_flags)
     execute_process(COMMAND ${compiler}
         ${cpu_flags} -print-sysroot OUTPUT_VARIABLE ARM_GCC_SYSROOT
         OUTPUT_STRIP_TRAILING_WHITESPACE)
+    file(TO_CMAKE_PATH ${ARM_GCC_SYSROOT} ARM_GCC_SYSROOT)
 endmacro()
 
 # Retrieve ARM GCC multilib directory for further usage with Clang
@@ -35,6 +36,7 @@ macro(clang_utils_get_arm_gcc_multilib_dir compiler cpu_flags)
     execute_process(COMMAND ${compiler} ${cpu_flags} -print-multi-directory
         OUTPUT_VARIABLE ARM_GCC_MULTIDIR
         OUTPUT_STRIP_TRAILING_WHITESPACE)
+    file(TO_CMAKE_PATH ${ARM_GCC_MULTIDIR} ARM_GCC_MULTIDIR)
 endmacro()
 
 # Retrieve ARM GCC libgcc directory for further usage with Clang
