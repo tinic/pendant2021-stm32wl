@@ -29,7 +29,7 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 class SHA256 {
 public:
 
-    const auto digest() const { return hash; }
+    auto digest() const { return hash; }
     void perform(const uint8_t *msg, size_t msgLen, size_t rounds = 1);
 
 private:

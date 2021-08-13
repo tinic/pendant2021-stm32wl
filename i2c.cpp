@@ -79,9 +79,9 @@ void i2c::init() {
 
 void i2c::update() {
     // populate slave driven registers
-    memcpy(&i2cRegs.devEUI[0], SecureElementGetDevEui(), 8);
-    memcpy(&i2cRegs.joinEUI[0], SecureElementGetJoinEui(), 8);
-    memcpy(&i2cRegs.appKey[0], lora_app_key(), 16);
+    memcpy(&i2cRegs.fields.devEUI[0], SecureElementGetDevEui(), 8);
+    memcpy(&i2cRegs.fields.joinEUI[0], SecureElementGetJoinEui(), 8);
+    memcpy(&i2cRegs.fields.appKey[0], lora_app_key(), 16);
 }
 
 static float u82f(uint8_t v, float min, float max) {
@@ -89,35 +89,35 @@ static float u82f(uint8_t v, float min, float max) {
 }
 
 uint8_t i2c::Effect() const {
-    return i2cRegs.effectN;
+    return i2cRegs.fields.effectN;
 }
 
 float i2c::Brightness() const {
-    return u82f(i2cRegs.brightness, 0.0f, 1.0f);
+    return u82f(i2cRegs.fields.brightness, 0.0f, 1.0f);
 }
 
 float i2c::BatteryVoltage() const {
-    return u82f(i2cRegs.batteryVoltage, 2.7f, 4.2f);
+    return u82f(i2cRegs.fields.batteryVoltage, 2.7f, 4.2f);
 }
 
 float i2c::SystemVoltage() const {
-    return u82f(i2cRegs.systemVoltage, 2.7f, 4.2f);
+    return u82f(i2cRegs.fields.systemVoltage, 2.7f, 4.2f);
 }
 
 float i2c::VBUSVoltage() const {
-    return u82f(i2cRegs.vbusVoltage, 0.0f, 5.5f);
+    return u82f(i2cRegs.fields.vbusVoltage, 0.0f, 5.5f);
 }
 
 float i2c::ChargeCurrent() const {
-    return u82f(i2cRegs.chargeCurrent, 0.0f, 1000.0f);
+    return u82f(i2cRegs.fields.chargeCurrent, 0.0f, 1000.0f);
 }
 
 float i2c::Temperature() const {
-    return u82f(i2cRegs.temperature, 0.0f, 50.0f);
+    return u82f(i2cRegs.fields.temperature, 0.0f, 50.0f);
 }
 
 float i2c::Humidity() const {
-    return u82f(i2cRegs.humidity, 0.0f, 1.0f);
+    return u82f(i2cRegs.fields.humidity, 0.0f, 1.0f);
 }
 
 const uint8_t *i2c::encodeForLora(uint8_t &len, uint8_t &port) {
@@ -132,49 +132,49 @@ const uint8_t *i2c::encodeForLora(uint8_t &len, uint8_t &port) {
     if (dataRate == DR_0) {
         port = 1;
 
-        bitstream.PutUint16LE(i2cRegs.systemTime);
+        bitstream.PutUint16LE(i2cRegs.fields.systemTime);
 
-        bitstream.PutUint8(i2cRegs.effectN);
-        bitstream.PutUint8(i2cRegs.temperature);
-        bitstream.PutUint8(i2cRegs.humidity);
-        bitstream.PutUint8(i2cRegs.batteryVoltage);
+        bitstream.PutUint8(i2cRegs.fields.effectN);
+        bitstream.PutUint8(i2cRegs.fields.temperature);
+        bitstream.PutUint8(i2cRegs.fields.humidity);
+        bitstream.PutUint8(i2cRegs.fields.batteryVoltage);
 
     } else { // > DR_0
         port = 2;
 
-        bitstream.PutUint16LE(i2cRegs.systemTime);
+        bitstream.PutUint16LE(i2cRegs.fields.systemTime);
 
-        bitstream.PutUint8(i2cRegs.status);
-        bitstream.PutUint8(i2cRegs.effectN);
-        bitstream.PutUint8(i2cRegs.brightness);
-        bitstream.PutUint8(i2cRegs.batteryVoltage);
-        bitstream.PutUint8(i2cRegs.systemVoltage);
-        bitstream.PutUint8(i2cRegs.vbusVoltage);
-        bitstream.PutUint8(i2cRegs.chargeCurrent);
-        bitstream.PutUint8(i2cRegs.temperature);
-        bitstream.PutUint8(i2cRegs.humidity);
+        bitstream.PutUint8(i2cRegs.fields.status);
+        bitstream.PutUint8(i2cRegs.fields.effectN);
+        bitstream.PutUint8(i2cRegs.fields.brightness);
+        bitstream.PutUint8(i2cRegs.fields.batteryVoltage);
+        bitstream.PutUint8(i2cRegs.fields.systemVoltage);
+        bitstream.PutUint8(i2cRegs.fields.vbusVoltage);
+        bitstream.PutUint8(i2cRegs.fields.chargeCurrent);
+        bitstream.PutUint8(i2cRegs.fields.temperature);
+        bitstream.PutUint8(i2cRegs.fields.humidity);
 
         static uint32_t counter = 0;
 
         if ((++counter % 16) == 0) {
             port = 3;
 
-            bitstream.PutUint8(i2cRegs.ring_color[0]);
-            bitstream.PutUint8(i2cRegs.ring_color[1]);
-            bitstream.PutUint8(i2cRegs.ring_color[2]);
-            bitstream.PutUint8(i2cRegs.ring_color[3]);
+            bitstream.PutUint8(i2cRegs.fields.ring_color[0]);
+            bitstream.PutUint8(i2cRegs.fields.ring_color[1]);
+            bitstream.PutUint8(i2cRegs.fields.ring_color[2]);
+            bitstream.PutUint8(i2cRegs.fields.ring_color[3]);
 
-            bitstream.PutUint8(i2cRegs.bird_color[0]);
-            bitstream.PutUint8(i2cRegs.bird_color[1]);
-            bitstream.PutUint8(i2cRegs.bird_color[2]);
-            bitstream.PutUint8(i2cRegs.bird_color[3]);
+            bitstream.PutUint8(i2cRegs.fields.bird_color[0]);
+            bitstream.PutUint8(i2cRegs.fields.bird_color[1]);
+            bitstream.PutUint8(i2cRegs.fields.bird_color[2]);
+            bitstream.PutUint8(i2cRegs.fields.bird_color[3]);
 
-            bitstream.PutUint16LE(i2cRegs.switch1Count);
-            bitstream.PutUint16LE(i2cRegs.switch2Count);
-            bitstream.PutUint16LE(i2cRegs.switch3Count);
-            bitstream.PutUint16LE(i2cRegs.bootCount);
-            bitstream.PutUint16LE(i2cRegs.intCount);
-            bitstream.PutUint16LE(i2cRegs.dselCount);
+            bitstream.PutUint16LE(i2cRegs.fields.switch1Count);
+            bitstream.PutUint16LE(i2cRegs.fields.switch2Count);
+            bitstream.PutUint16LE(i2cRegs.fields.switch3Count);
+            bitstream.PutUint16LE(i2cRegs.fields.bootCount);
+            bitstream.PutUint16LE(i2cRegs.fields.intCount);
+            bitstream.PutUint16LE(i2cRegs.fields.dselCount);
         }
     }
 
@@ -182,7 +182,7 @@ const uint8_t *i2c::encodeForLora(uint8_t &len, uint8_t &port) {
 
     len = uint8_t(bitstream.Position());
 
-    printf("Time: %d Data Size: %d Port: %d BatteryVoltage %f\r\n", int(i2cRegs.systemTime), int(len), int(port), double(BatteryVoltage()));
+    printf("Time: %d Data Size: %d Port: %d BatteryVoltage %f\r\n", int(i2cRegs.fields.systemTime), int(len), int(port), double(BatteryVoltage()));
 
     return bitstream.Buffer();
 }

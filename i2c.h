@@ -89,7 +89,7 @@ private:
             uint16_t bootCount;
             uint16_t intCount;
             uint16_t dselCount;
-        };
+        } fields;
     } i2cRegs;
 
     int slave_process_addr_match(int rw);
