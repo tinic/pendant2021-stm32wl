@@ -62,6 +62,10 @@ void Error_Handler(void);
 #define RTC_PREDIV_S ((1<<RTC_N_PREDIV_S)-1)
 #define RTC_PREDIV_A ((1<<(15-RTC_N_PREDIV_S))-1)
 #define RTC_USE_HSE 0
+#define ACCEL_INT1_Pin GPIO_PIN_4
+#define ACCEL_INT1_GPIO_Port GPIOA
+#define BQ_INT_Pin GPIO_PIN_5
+#define BQ_INT_GPIO_Port GPIOA
 #define RF_CTRL_2_Pin GPIO_PIN_7
 #define RF_CTRL_2_GPIO_Port GPIOA
 #define RF_CTRL_1_Pin GPIO_PIN_9

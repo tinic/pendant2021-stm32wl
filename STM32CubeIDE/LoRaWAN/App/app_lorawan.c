@@ -77,7 +77,7 @@ void MX_LoRaWAN_Init(void)
 void MX_LoRaWAN_Process(void)
 {
   /* USER CODE BEGIN MX_LoRaWAN_Process_1 */
-  UTIL_SEQ_Run(UTIL_SEQ_DEFAULT);
+
   /* USER CODE END MX_LoRaWAN_Process_1 */
   UTIL_SEQ_Run(UTIL_SEQ_DEFAULT);
   /* USER CODE BEGIN MX_LoRaWAN_Process_2 */

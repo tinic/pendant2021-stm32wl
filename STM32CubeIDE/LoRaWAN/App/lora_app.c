@@ -261,21 +261,21 @@ static void OnRxData(LmHandlerAppData_t *appData, LmHandlerRxParams_t *params)
 						case 0: {
 							LmHandlerRequestClass(CLASS_A);
 #ifdef DEBUG_MSG
-							printf("CLASS_A!\n");
+							printf("CLASS_A!\r\n");
 #endif  // #ifdef DEBUG_MSG
 						}
 						break;
 						case 1: {
 							LmHandlerRequestClass(CLASS_B);
 #ifdef DEBUG_MSG
-							printf("CLASS_B!\n");
+							printf("CLASS_B!\r\n");
 #endif  // #ifdef DEBUG_MSG
 						}
 						break;
 						case 2: {
 							LmHandlerRequestClass(CLASS_C);
 #ifdef DEBUG_MSG
-							printf("CLASS_C!\n");
+							printf("CLASS_C!\r\n");
 #endif  // #ifdef DEBUG_MSG
 						}
 						break;
@@ -330,9 +330,9 @@ static void OnTxData(LmHandlerTxParams_t *params)
 	if ((params != NULL) && (params->IsMcpsConfirm != 0)) {
 		if (params->MsgType == LORAMAC_HANDLER_CONFIRMED_MSG) {
 #ifdef DEBUG_MSG
-			printf("OnTxData confirmed!!\n");
+			printf("OnTxData confirmed!!\r\n");
 		} else {
-			printf("OnTxData unconfirmed!\n");
+			printf("OnTxData unconfirmed!\r\n");
 #endif // #ifdef DEBUG_MSG
 		}
 	}
@@ -346,12 +346,12 @@ static void OnJoinRequest(LmHandlerJoinParams_t *joinParams)
 		if (joinParams->Status == LORAMAC_HANDLER_SUCCESS) {
 			if (joinParams->Mode == ACTIVATION_TYPE_OTAA) {
 #ifdef DEBUG_MSG
-				printf("OnJoinRequest confirmed!!\n");
+				printf("OnJoinRequest confirmed!!\r\n");
 #endif  // #ifdef DEBUG_MSG
 			}
 		} else {
 #ifdef DEBUG_MSG
-			printf("OnJoinRequest retry\n");
+			printf("OnJoinRequest retry\r\n");
 #endif  // #ifdef DEBUG_MSG
 		}
 	}
@@ -361,7 +361,7 @@ static void OnJoinRequest(LmHandlerJoinParams_t *joinParams)
 static void OnMacProcessNotify(void)
 {
   /* USER CODE BEGIN OnMacProcessNotify_1 */
-  UTIL_SEQ_SetTask((1 << CFG_SEQ_Task_LmHandlerProcess), CFG_SEQ_Prio_0);
+
   /* USER CODE END OnMacProcessNotify_1 */
   UTIL_SEQ_SetTask((1 << CFG_SEQ_Task_LmHandlerProcess), CFG_SEQ_Prio_0);
 
