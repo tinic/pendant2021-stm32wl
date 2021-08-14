@@ -33,7 +33,7 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #include <memory.h>
 
 const uint8_t *lora_encode_packet(uint8_t *len, uint8_t *port) {
-    return i2c::instance().encodeForLora(*len, *port);
+    return i2c2::instance().encodeForLora(*len, *port);
 }
 
 void lora_decode_packet(const uint8_t *packet, size_t len) {
@@ -58,7 +58,7 @@ const uint8_t *lora_app_key() {
 }
 
 void system_init() {
-  i2c::instance();
+  i2c2::instance();
   printf("\r\n**************************************************************");
   printf("\r\nDevEUI: ");
   for(size_t c = 0; c < 8; c++) {
@@ -72,5 +72,6 @@ void system_init() {
 }
 
 void system_process() {
-    i2c::instance().update();
+    i2c1::instance().update();
+    i2c2::instance().update();
 }

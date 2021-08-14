@@ -26,13 +26,32 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #include <stdint.h>
 
 extern "C" {
-    void i2c_slave_ev_irq_handler(void);
-    void i2c_slave_err_irq_handler(void);
+    void i2c2_slave_ev_irq_handler(void);
+    void i2c2_slave_err_irq_handler(void);
 };
 
-class i2c {
+class i2c1 {
 public:
-    static i2c &instance();
+    static i2c1 &instance();
+
+    void write(uint8_t slaveAddr, uint8_t data[], size_t len);
+    uint8_t read(uint8_t slaveAddr, uint8_t data[], size_t len);
+
+    void setReg8(uint8_t slaveAddr, uint8_t reg, uint8_t dat);
+    uint8_t getReg8(uint8_t slaveAddr, uint8_t reg);
+
+    void setReg8Bits(uint8_t slaveAddr, uint8_t reg, uint8_t mask);
+    void clearReg8Bits(uint8_t slaveAddr, uint8_t reg, uint8_t mask);
+
+    void update();
+
+private:
+
+    void init();
+};
+class i2c2 {
+public:
+    static i2c2 &instance();
 
     void update();
 
@@ -98,8 +117,8 @@ private:
     uint8_t slave_process_tx_byte(void);
     void slave_process_tx_end(void);
 
-    friend void i2c_slave_ev_irq_handler(void);
-    friend void i2c_slave_err_irq_handler(void);
+    friend void i2c2_slave_ev_irq_handler(void);
+    friend void i2c2_slave_err_irq_handler(void);
 
     void slave_ev_irq_handler(void);
     void slave_err_irq_handler(void);

@@ -103,6 +103,8 @@ add_executable(${PROJECT_NAME}.elf
     ${PROJECT_SOURCE_DIR}/i2c.cpp 
     ${PROJECT_SOURCE_DIR}/murmurhash3.cpp 
     ${PROJECT_SOURCE_DIR}/sha256.cpp 
+    ${PROJECT_SOURCE_DIR}/bq25895.cpp 
+    ${PROJECT_SOURCE_DIR}/ens210.cpp 
     ${PROJECT_SOURCE_DIR}/STM32CubeIDE/Core/Startup/startup_stm32wle5ccux.s 
     ${STM32CUBEIDE_SRC})
 
