@@ -302,7 +302,23 @@ static void OnRxData(LmHandlerAppData_t *appData, LmHandlerRxParams_t *params)
 static void SendTxData(void)
 {
   /* USER CODE BEGIN SendTxData_1 */
-
+	static LmHandlerAppData_t TxData = { LORAWAN_USER_APP_PORT, 0, 0 };
+#ifdef USER_APP_BUILD
+	TxData.Buffer = (uint8_t *)lora_encode_packet(&TxData.BufferSize, &TxData.Port);
+#else  //#ifdef USER_APP_BUILD
+	TxData.Buffer = 0;
+	TxData.BufferSize = 0;
+#endif  // #ifdef PENDANT_BUILD
+	UTIL_TIMER_Time_t nextTxIn = 0;
+	if (LORAMAC_HANDLER_SUCCESS == LmHandlerSend(&TxData, LORAWAN_DEFAULT_CONFIRMED_MSG_STATE, &nextTxIn, false)) {
+#ifdef DEBUG_MSG
+		printf("SendTxData Success!\r\n");
+	} else if (nextTxIn > 0) {
+		printf("SendTxData Early!\r\n");
+	} else {
+		printf("SendTxData Fail!\r\n");
+#endif // #ifdef DEBUG_MSG
+	}
   /* USER CODE END SendTxData_1 */
 }
 

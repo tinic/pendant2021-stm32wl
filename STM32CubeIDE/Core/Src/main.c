@@ -83,7 +83,7 @@ static void MX_RNG_Init(void);
 /* USER CODE BEGIN 0 */
 int __io_putchar(int ch) {
        uint8_t c = ch;
-       HAL_UART_Transmit(&huart2, &c, 1, 1000);
+       HAL_UART_Transmit(&huart2, &c, 1, HAL_MAX_DELAY);
        return 0;
 }
 

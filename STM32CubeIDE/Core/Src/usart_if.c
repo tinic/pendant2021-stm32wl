@@ -146,7 +146,7 @@ UTIL_ADV_TRACE_Status_t vcom_DeInit(void)
 void vcom_Trace(uint8_t *p_data, uint16_t size)
 {
   /* USER CODE BEGIN vcom_Trace_1 */
-  HAL_UART_Transmit(&huart2, p_data, size, 1000);
+  HAL_UART_Transmit(&huart2, p_data, size, HAL_MAX_DELAY);
   if (0) {
   /* USER CODE END vcom_Trace_1 */
   HAL_UART_Transmit(&huart2, p_data, size, 1000);
@@ -158,7 +158,7 @@ void vcom_Trace(uint8_t *p_data, uint16_t size)
 UTIL_ADV_TRACE_Status_t vcom_Trace_DMA(uint8_t *p_data, uint16_t size)
 {
   /* USER CODE BEGIN vcom_Trace_DMA_1 */
-  HAL_UART_Transmit(&huart2, p_data, size, 1000);
+  HAL_UART_Transmit(&huart2, p_data, size, HAL_MAX_DELAY);
   if (0) {
   /* USER CODE END vcom_Trace_DMA_1 */
   HAL_UART_Transmit_DMA(&huart2, p_data, size);

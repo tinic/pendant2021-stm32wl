@@ -32,7 +32,7 @@ extern "C" {
 #include "sys_conf.h"
 #include "stm32_adv_trace.h"
 /* USER CODE BEGIN Includes */
-
+#include <stdio.h>
 /* USER CODE END Includes */
 
 /* Exported defines ----------------------------------------------------------*/
@@ -70,7 +70,8 @@ extern "C" {
 #endif /* APP_LOG_ENABLED */
 
 /* USER CODE BEGIN EM */
-
+#undef APP_LOG
+#define APP_LOG(TS,VL,...)   do{ {printf(__VA_ARGS__);} }while(0);
 /* USER CODE END EM */
 
 /* Exported functions prototypes ---------------------------------------------*/

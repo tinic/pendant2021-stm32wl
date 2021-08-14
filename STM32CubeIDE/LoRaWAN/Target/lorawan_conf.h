@@ -63,7 +63,7 @@ extern "C" {
   * \brief Define the read access of the keys in memory
   * \note this value should be disabled after the development process
   */
-#define KEY_EXTRACTABLE                                 1
+#define KEY_EXTRACTABLE                                 0
 
 /*!
  * Enables/Disables the context storage management storage.

@@ -100,7 +100,7 @@ extern "C" {
 /*!
  * App/Join server IEEE EUI (big endian)
  */
-#define LORAWAN_JOIN_EUI                                   { 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 }
+#define LORAWAN_JOIN_EUI                                   { 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01 }
 
 /*!
  * When set to 1 DevAddr is LORAWAN_DEVICE_ADDRESS
@@ -117,22 +117,22 @@ extern "C" {
 /*!
  * Application root key
  */
-#define LORAWAN_APP_KEY                                    00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00
+#define LORAWAN_APP_KEY                                    2B,7E,15,16,28,AE,D2,A6,AB,F7,15,88,09,CF,4F,3C
 
 /*!
  * Network root key
  */
-#define LORAWAN_NWK_KEY                                    00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00
+#define LORAWAN_NWK_KEY                                    2B,7E,15,16,28,AE,D2,A6,AB,F7,15,88,09,CF,4F,3C
 
 /*!
  * Forwarding Network session key
  */
-#define LORAWAN_NWK_S_KEY                                  00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00
+#define LORAWAN_NWK_S_KEY                                  2B,7E,15,16,28,AE,D2,A6,AB,F7,15,88,09,CF,4F,3C
 
 /*!
  * Application session key
  */
-#define LORAWAN_APP_S_KEY                                  00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00
+#define LORAWAN_APP_S_KEY                                  2B,7E,15,16,28,AE,D2,A6,AB,F7,15,88,09,CF,4F,3C
 
 /*!
  * Format commissioning keys
