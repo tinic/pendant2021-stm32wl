@@ -20,6 +20,7 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #include "./i2c.h"
 #include "./bq25895.h"
 #include "./ens210.h"
+#include "./lsm6dsm.h"
 
 #include <stdint.h>
 #include <type_traits>
@@ -67,9 +68,15 @@ void i2c1::init() {
         ENS210::devicePresent = HAL_I2C_IsDeviceReady(&hi2c1, ENS210::i2c_addr<<1, 8, HAL_MAX_DELAY) == HAL_OK;
         printf("ENS210 is ready.\r\n");
     }
+
     if (!BQ25895::devicePresent) {
         BQ25895::devicePresent = HAL_I2C_IsDeviceReady(&hi2c1, BQ25895::i2c_addr<<1, 8, HAL_MAX_DELAY) == HAL_OK;
         printf("BQ25895 is ready.\r\n");
+    }
+
+    if (!LSM6DSM::devicePresent) {
+        LSM6DSM::devicePresent = HAL_I2C_IsDeviceReady(&hi2c1, LSM6DSM::i2c_addr<<1, 8, HAL_MAX_DELAY) == HAL_OK;
+        printf("LSM6DSM is ready.\r\n");
     }
 
     update();
@@ -81,9 +88,15 @@ void i2c1::update() {
         ENS210::devicePresent = HAL_I2C_IsDeviceReady(&hi2c1, ENS210::i2c_addr<<1, 8, HAL_MAX_DELAY) == HAL_OK;
         printf("ENS210 is ready on reprobe.\r\n");
     }
+
     if (!BQ25895::devicePresent) {
         BQ25895::devicePresent = HAL_I2C_IsDeviceReady(&hi2c1, BQ25895::i2c_addr<<1, 8, HAL_MAX_DELAY) == HAL_OK;
         printf("BQ25895 is ready on reprobe.\r\n");
+    }
+
+    if (!LSM6DSM::devicePresent) {
+        LSM6DSM::devicePresent = HAL_I2C_IsDeviceReady(&hi2c1, LSM6DSM::i2c_addr<<1, 8, HAL_MAX_DELAY) == HAL_OK;
+        printf("LSM6DSM is ready on reprobe.\r\n");
     }
 
     if (ENS210::devicePresent) {
@@ -92,6 +105,10 @@ void i2c1::update() {
 
     if (BQ25895::devicePresent) {
         BQ25895::instance().UpdateState();
+    }
+
+    if (LSM6DSM::devicePresent) {
+        LSM6DSM::instance().update();
     }
 }
 
@@ -102,6 +119,12 @@ void i2c1::write(uint8_t slaveAddr, uint8_t data[], size_t len) {
 uint8_t i2c1::read(uint8_t slaveAddr, uint8_t rdata[], size_t len) {
     HAL_I2C_Master_Receive(&hi2c1, slaveAddr<<1, rdata, len, HAL_MAX_DELAY);
     return len;
+}
+
+uint8_t i2c1::writeRead(uint8_t slaveAddr, uint8_t writeData[], size_t writeLen, uint8_t readData[], size_t readLen) {
+    HAL_I2C_Master_Transmit(&hi2c1,slaveAddr<<1, writeData, writeLen, HAL_MAX_DELAY);
+    HAL_I2C_Master_Receive(&hi2c1, slaveAddr<<1, readData, readLen, HAL_MAX_DELAY);
+    return readLen;
 }
 
 void i2c1::setReg8(uint8_t slaveAddr, uint8_t dataAddr, uint8_t data) {

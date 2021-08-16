@@ -37,6 +37,8 @@ public:
     void write(uint8_t slaveAddr, uint8_t data[], size_t len);
     uint8_t read(uint8_t slaveAddr, uint8_t data[], size_t len);
 
+    uint8_t writeRead(uint8_t slaveAddr, uint8_t writeData[], size_t writeLen, uint8_t readData[], size_t readLen);
+
     void setReg8(uint8_t slaveAddr, uint8_t reg, uint8_t dat);
     uint8_t getReg8(uint8_t slaveAddr, uint8_t reg);
 
