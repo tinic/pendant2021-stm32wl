@@ -123,10 +123,10 @@ endif()
 include_directories(${CMAKE_BINARY_DIR})
 configure_file("${PROJECT_SOURCE_DIR}/version.h.in" "${CMAKE_BINARY_DIR}/version.h" @ONLY)
 
-include(./utils.cmake)
+include(./cmake/utils.cmake)
 
 if("${CMAKE_C_COMPILER_ID}" STREQUAL "Clang")
-    include(./clang_utils.cmake)
+    include(./cmake/clang_utils.cmake)
     clang_utils_get_arm_gcc_version(${ARM_GCC_C_COMPILER})
     clang_utils_get_arm_gcc_sysroot(${ARM_GCC_C_COMPILER} ${CC_FLAGS})
     clang_utils_get_arm_gcc_multilib_dir(${ARM_GCC_C_COMPILER} ${CC_FLAGS})
