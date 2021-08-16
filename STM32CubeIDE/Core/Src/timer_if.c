@@ -256,7 +256,7 @@ UTIL_TIMER_Status_t TIMER_IF_StartTimer(uint32_t timeout)
   TIMER_IF_StopTimer();
   timeout += RtcTimerContext;
 
-  TIMER_IF_DBG_PRINTF("Start timer: time=%d, alarm=%d\r\n",  GetTimerTicks(), timeout);
+  TIMER_IF_DBG_PRINTF("Start timer: time=%d, alarm=%d\n\r",  GetTimerTicks(), timeout);
   /* starts timer*/
   sAlarm.BinaryAutoClr = RTC_ALARMSUBSECONDBIN_AUTOCLR_NO;
   sAlarm.AlarmTime.SubSeconds = UINT32_MAX - timeout;
@@ -305,7 +305,7 @@ uint32_t TIMER_IF_SetTimerContext(void)
 
   /* USER CODE END TIMER_IF_SetTimerContext */
 
-  TIMER_IF_DBG_PRINTF("TIMER_IF_SetTimerContext=%d\r\n", RtcTimerContext);
+  TIMER_IF_DBG_PRINTF("TIMER_IF_SetTimerContext=%d\n\r", RtcTimerContext);
   /*return time context*/
   return RtcTimerContext;
 }
@@ -316,7 +316,7 @@ uint32_t TIMER_IF_GetTimerContext(void)
 
   /* USER CODE END TIMER_IF_GetTimerContext */
 
-  TIMER_IF_DBG_PRINTF("TIMER_IF_GetTimerContext=%d\r\n", RtcTimerContext);
+  TIMER_IF_DBG_PRINTF("TIMER_IF_GetTimerContext=%d\n\r", RtcTimerContext);
   /*return time context*/
   return RtcTimerContext;
 }
@@ -432,7 +432,7 @@ void HAL_RTCEx_SSRUEventCallback(RTC_HandleTypeDef *hrtc)
 
   /* USER CODE END HAL_RTCEx_SSRUEventCallback */
   /*called every 48 days with 1024 ticks per seconds*/
-  TIMER_IF_DBG_PRINTF(">>Handler SSRUnderflow at %d\r\n", GetTimerTicks());
+  TIMER_IF_DBG_PRINTF(">>Handler SSRUnderflow at %d\n\r", GetTimerTicks());
   /*Increment MSBticks*/
   uint32_t MSB_ticks = TIMER_IF_BkUp_Read_MSBticks();
   TIMER_IF_BkUp_Write_MSBticks(MSB_ticks + 1);
