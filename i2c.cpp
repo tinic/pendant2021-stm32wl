@@ -21,6 +21,7 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #include "./bq25895.h"
 #include "./ens210.h"
 #include "./lsm6dsm.h"
+#include "./mmc5633njl.h"
 
 #include <stdint.h>
 #include <type_traits>
@@ -79,6 +80,11 @@ void i2c1::init() {
         printf("LSM6DSM is ready.\r\n");
     }
 
+    if (!MMC5633NJL::devicePresent) {
+        MMC5633NJL::devicePresent = HAL_I2C_IsDeviceReady(&hi2c1, MMC5633NJL::i2c_addr<<1, 8, HAL_MAX_DELAY) == HAL_OK;
+        printf("MMC5633NJL is ready.\r\n");
+    }
+
     update();
 }
 
@@ -99,6 +105,11 @@ void i2c1::update() {
         printf("LSM6DSM is ready on reprobe.\r\n");
     }
 
+    if (!MMC5633NJL::devicePresent) {
+        MMC5633NJL::devicePresent = HAL_I2C_IsDeviceReady(&hi2c1, MMC5633NJL::i2c_addr<<1, 8, HAL_MAX_DELAY) == HAL_OK;
+        printf("MMC5633NJL is ready on reprobe.\r\n");
+    }
+
     if (ENS210::devicePresent) {
         ENS210::instance().update();
     }
@@ -109,6 +120,10 @@ void i2c1::update() {
 
     if (LSM6DSM::devicePresent) {
         LSM6DSM::instance().update();
+    }
+
+    if (MMC5633NJL::devicePresent) {
+        MMC5633NJL::instance().update();
     }
 }
 
