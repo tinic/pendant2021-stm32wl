@@ -21,6 +21,7 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #include "./bitstream.h"
 #include "./i2c.h"
 #include "./murmurhash3.h"
+#include "./ics43434.h"
 
 #include "main.h"
 #include "app_lorawan.h"
@@ -58,20 +59,25 @@ const uint8_t *lora_app_key() {
 }
 
 void system_init() {
-  i2c2::instance();
-  printf("\r\n**************************************************************");
-  printf("\r\nDevEUI: ");
-  for(size_t c = 0; c < 8; c++) {
-      printf("%02x ",SecureElementGetDevEui()[c]);
-  }
-  printf("\r\nAppKey: ");
-  for(size_t c = 0; c < 16; c++) {
-      printf("%02x ",lora_app_key()[c]);
-  }
-  printf("\r\n");
+    // Init mic
+    ICS43434::instance();
+
+    // Init i2c devices
+    i2c2::instance();
+
+    printf("\r\n**************************************************************");
+    printf("\r\nDevEUI: ");
+    for(size_t c = 0; c < 8; c++) {
+        printf("%02x ",SecureElementGetDevEui()[c]);
+    }
+    printf("\r\nAppKey: ");
+    for(size_t c = 0; c < 16; c++) {
+        printf("%02x ",lora_app_key()[c]);
+    }
+    printf("\r\n");
 }
 
 void system_process() {
+    ICS43434::instance().update();
     i2c1::instance().update();
-    i2c2::instance().update();
 }

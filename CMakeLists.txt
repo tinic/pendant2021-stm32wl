@@ -107,6 +107,7 @@ add_executable(${PROJECT_NAME}.elf
     ${PROJECT_SOURCE_DIR}/ens210.cpp 
     ${PROJECT_SOURCE_DIR}/lsm6dsm.cpp 
     ${PROJECT_SOURCE_DIR}/mmc5633njl.cpp
+    ${PROJECT_SOURCE_DIR}/ics43434.cpp
     ${PROJECT_SOURCE_DIR}/STM32CubeIDE/Core/Startup/startup_stm32wle5ccux.s 
     ${STM32CUBEIDE_SRC})
 
