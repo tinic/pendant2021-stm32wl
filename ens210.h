@@ -37,11 +37,15 @@ public:
 
 private:
     friend class i2c1;
+    friend class i2c2;
     static constexpr uint8_t i2c_addr = 0x43;
     static bool devicePresent;
 
     float temperature;
     float humidity;
+
+    uint16_t temperatureRaw;
+    uint16_t humidityRaw;
 
     void reset();
     void read();

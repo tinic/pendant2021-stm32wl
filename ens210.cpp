@@ -89,10 +89,12 @@ void ENS210::read() {
     float TinK = (float)t_data / 64;
     float TinC = TinK - 273.15f;
     temperature = TinC;
+    temperatureRaw = static_cast<uint16_t>(t_data);
 
     uint32_t h_data = (h_val>>0 ) & 0xffff;
     float H = (float)h_data/51200;
     humidity = H;
+    humidityRaw = static_cast<uint16_t>(h_data);
 }
 
 void ENS210::update() {

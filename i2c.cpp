@@ -36,18 +36,19 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 #include <memory.h>
 #include <stdio.h>
+#include <algorithm>
 
 
 extern "C" {
 
 extern I2C_HandleTypeDef hi2c1;
 
-void i2c2_slave_ev_irq_handler(void) {
-    i2c2::instance().slave_ev_irq_handler();
+void i2c2_peripheral_ev_irq_handler(void) {
+    i2c2::instance().peripheral_ev_irq_handler();
 }
 
-void i2c2_slave_err_irq_handler() {
-    i2c2::instance().slave_err_irq_handler();
+void i2c2_peripheral_err_irq_handler() {
+    i2c2::instance().peripheral_err_irq_handler();
 }
    
 };
@@ -65,14 +66,14 @@ i2c1 &i2c1::instance() {
 void i2c1::init() {
     memset(this, 0, sizeof(i2c1));
 
-    if (!ENS210::devicePresent) {
-        ENS210::devicePresent = HAL_I2C_IsDeviceReady(&hi2c1, ENS210::i2c_addr<<1, 8, HAL_MAX_DELAY) == HAL_OK;
-        printf("ENS210 is ready.\r\n");
-    }
-
     if (!BQ25895::devicePresent) {
         BQ25895::devicePresent = HAL_I2C_IsDeviceReady(&hi2c1, BQ25895::i2c_addr<<1, 8, HAL_MAX_DELAY) == HAL_OK;
         printf("BQ25895 is ready.\r\n");
+    }
+
+    if (!ENS210::devicePresent) {
+        ENS210::devicePresent = HAL_I2C_IsDeviceReady(&hi2c1, ENS210::i2c_addr<<1, 8, HAL_MAX_DELAY) == HAL_OK;
+        printf("ENS210 is ready.\r\n");
     }
 
     if (!LSM6DSM::devicePresent) {
@@ -90,14 +91,14 @@ void i2c1::init() {
 
 void i2c1::update() {
 
-    if (!ENS210::devicePresent) {
-        ENS210::devicePresent = HAL_I2C_IsDeviceReady(&hi2c1, ENS210::i2c_addr<<1, 8, HAL_MAX_DELAY) == HAL_OK;
-        printf("ENS210 is ready on reprobe.\r\n");
-    }
-
     if (!BQ25895::devicePresent) {
         BQ25895::devicePresent = HAL_I2C_IsDeviceReady(&hi2c1, BQ25895::i2c_addr<<1, 8, HAL_MAX_DELAY) == HAL_OK;
         printf("BQ25895 is ready on reprobe.\r\n");
+    }
+
+    if (!ENS210::devicePresent) {
+        ENS210::devicePresent = HAL_I2C_IsDeviceReady(&hi2c1, ENS210::i2c_addr<<1, 8, HAL_MAX_DELAY) == HAL_OK;
+        printf("ENS210 is ready on reprobe.\r\n");
     }
 
     if (!LSM6DSM::devicePresent) {
@@ -110,12 +111,12 @@ void i2c1::update() {
         printf("MMC5633NJL is ready on reprobe.\r\n");
     }
 
-    if (ENS210::devicePresent) {
-        ENS210::instance().update();
+    if (BQ25895::devicePresent) {
+        BQ25895::instance().update();
     }
 
-    if (BQ25895::devicePresent) {
-        BQ25895::instance().UpdateState();
+    if (ENS210::devicePresent) {
+        ENS210::instance().update();
     }
 
     if (LSM6DSM::devicePresent) {
@@ -127,44 +128,44 @@ void i2c1::update() {
     }
 }
 
-void i2c1::write(uint8_t slaveAddr, uint8_t data[], size_t len) {
-    HAL_I2C_Master_Transmit(&hi2c1,slaveAddr<<1, data, len, HAL_MAX_DELAY);
+void i2c1::write(uint8_t peripheralAddr, uint8_t data[], size_t len) {
+    HAL_I2C_Master_Transmit(&hi2c1,peripheralAddr<<1, data, len, HAL_MAX_DELAY);
 }
 
-uint8_t i2c1::read(uint8_t slaveAddr, uint8_t rdata[], size_t len) {
-    HAL_I2C_Master_Receive(&hi2c1, slaveAddr<<1, rdata, len, HAL_MAX_DELAY);
+uint8_t i2c1::read(uint8_t peripheralAddr, uint8_t rdata[], size_t len) {
+    HAL_I2C_Master_Receive(&hi2c1, peripheralAddr<<1, rdata, len, HAL_MAX_DELAY);
     return len;
 }
 
-uint8_t i2c1::writeRead(uint8_t slaveAddr, uint8_t writeData[], size_t writeLen, uint8_t readData[], size_t readLen) {
-    HAL_I2C_Master_Transmit(&hi2c1,slaveAddr<<1, writeData, writeLen, HAL_MAX_DELAY);
-    HAL_I2C_Master_Receive(&hi2c1, slaveAddr<<1, readData, readLen, HAL_MAX_DELAY);
+uint8_t i2c1::writeRead(uint8_t peripheralAddr, uint8_t writeData[], size_t writeLen, uint8_t readData[], size_t readLen) {
+    HAL_I2C_Master_Transmit(&hi2c1,peripheralAddr<<1, writeData, writeLen, HAL_MAX_DELAY);
+    HAL_I2C_Master_Receive(&hi2c1, peripheralAddr<<1, readData, readLen, HAL_MAX_DELAY);
     return readLen;
 }
 
-void i2c1::setReg8(uint8_t slaveAddr, uint8_t dataAddr, uint8_t data) {
+void i2c1::setReg8(uint8_t peripheralAddr, uint8_t dataAddr, uint8_t data) {
     uint8_t set[2];
     set[0] = dataAddr;
     set[1] = data;
-    HAL_I2C_Master_Transmit(&hi2c1, slaveAddr<<1, set, 2, HAL_MAX_DELAY);
+    HAL_I2C_Master_Transmit(&hi2c1, peripheralAddr<<1, set, 2, HAL_MAX_DELAY);
 }
 
-void i2c1::setReg8Bits(uint8_t slaveAddr, uint8_t reg, uint8_t mask) {
-    uint8_t value = getReg8(slaveAddr, reg);
+void i2c1::setReg8Bits(uint8_t peripheralAddr, uint8_t reg, uint8_t mask) {
+    uint8_t value = getReg8(peripheralAddr, reg);
     value |= mask;
-    setReg8(slaveAddr, reg, value);
+    setReg8(peripheralAddr, reg, value);
 }
 
-void i2c1::clearReg8Bits(uint8_t slaveAddr, uint8_t reg, uint8_t mask) {
-    uint8_t value = getReg8(slaveAddr, reg);
+void i2c1::clearReg8Bits(uint8_t peripheralAddr, uint8_t reg, uint8_t mask) {
+    uint8_t value = getReg8(peripheralAddr, reg);
     value &= ~mask;
-    setReg8(slaveAddr, reg, value);
+    setReg8(peripheralAddr, reg, value);
 }
 
-uint8_t i2c1::getReg8(uint8_t slaveAddr, uint8_t dataAddr) {
+uint8_t i2c1::getReg8(uint8_t peripheralAddr, uint8_t dataAddr) {
     uint8_t value = 0x0;
-    if (HAL_I2C_Master_Transmit(&hi2c1, slaveAddr<<1, &dataAddr, 1, HAL_MAX_DELAY) == HAL_OK &&
-        HAL_I2C_Master_Receive(&hi2c1, slaveAddr<<1, &value, 1, HAL_MAX_DELAY) == HAL_OK) {
+    if (HAL_I2C_Master_Transmit(&hi2c1, peripheralAddr<<1, &dataAddr, 1, HAL_MAX_DELAY) == HAL_OK &&
+        HAL_I2C_Master_Receive(&hi2c1, peripheralAddr<<1, &value, 1, HAL_MAX_DELAY) == HAL_OK) {
         return value;
     }
     return 0;
@@ -192,8 +193,6 @@ void i2c2::init() {
     i2cReg = 0;
     i2cStatus = Stop;
 
-    update();
-
     NVIC_SetPriority(I2C2_EV_IRQn, 0);
     NVIC_EnableIRQ(I2C2_EV_IRQn);
 
@@ -201,117 +200,37 @@ void i2c2::init() {
     NVIC_EnableIRQ(I2C2_ER_IRQn);
 }
 
-void i2c2::update() {
-    // populate slave driven registers
+void i2c2::updateDynamicPeripheralFields() {
+    // populate peripheral driven registers
     memcpy(&i2cRegs.fields.devEUI[0], SecureElementGetDevEui(), 8);
     memcpy(&i2cRegs.fields.joinEUI[0], SecureElementGetJoinEui(), 8);
     memcpy(&i2cRegs.fields.appKey[0], lora_app_key(), 16);
+
+    i2cRegs.fields.bq25895Status = BQ25895::instance().statusRaw;
+    i2cRegs.fields.bq25895FaulState = BQ25895::instance().faultStateRaw;
+    i2cRegs.fields.bq25895BatteryVoltage = BQ25895::instance().batteryVoltageRaw;
+    i2cRegs.fields.bq25895SystemVoltage = BQ25895::instance().systemVoltageRaw;
+    i2cRegs.fields.bq25895VbusVoltage = BQ25895::instance().vbusVoltageRaw;
+    i2cRegs.fields.bq25895ChargeCurrent = BQ25895::instance().chargeCurrentRaw;
+
+    i2cRegs.fields.ens210Tmp = ENS210::instance().temperatureRaw;
+    i2cRegs.fields.ens210Hmd = ENS210::instance().humidityRaw;
+
+    i2cRegs.fields.lsm6dsmXG = LSM6DSM::instance().lsm6dsmRegs.fields.outXG;
+    i2cRegs.fields.lsm6dsmYG = LSM6DSM::instance().lsm6dsmRegs.fields.outYG;
+    i2cRegs.fields.lsm6dsmZG = LSM6DSM::instance().lsm6dsmRegs.fields.outZG;
+    i2cRegs.fields.lsm6dsmXA = LSM6DSM::instance().lsm6dsmRegs.fields.outXA;
+    i2cRegs.fields.lsm6dsmYA = LSM6DSM::instance().lsm6dsmRegs.fields.outYA;
+    i2cRegs.fields.lsm6dsmZA = LSM6DSM::instance().lsm6dsmRegs.fields.outZA;
+    i2cRegs.fields.lsm6dsmTmp = LSM6DSM::instance().lsm6dsmRegs.fields.outTemp;
+
+    i2cRegs.fields.mmc5633njlXG = MMC5633NJL::instance().XGRaw();
+    i2cRegs.fields.mmc5633njlYG = MMC5633NJL::instance().YGRaw();
+    i2cRegs.fields.mmc5633njlZG = MMC5633NJL::instance().ZGRaw();
+    i2cRegs.fields.mmc5633njlTmp = MMC5633NJL::instance().temperatureRaw();
 }
 
-static float u82f(uint8_t v, float min, float max) {
-    return ((float(v) * ( 1.0f / 255.0f ) * (max - min) ) + min);
-}
-
-uint8_t i2c2::Effect() const {
-    return i2cRegs.fields.effectN;
-}
-
-float i2c2::Brightness() const {
-    return u82f(i2cRegs.fields.brightness, 0.0f, 1.0f);
-}
-
-float i2c2::BatteryVoltage() const {
-    return u82f(i2cRegs.fields.batteryVoltage, 2.7f, 4.2f);
-}
-
-float i2c2::SystemVoltage() const {
-    return u82f(i2cRegs.fields.systemVoltage, 2.7f, 4.2f);
-}
-
-float i2c2::VBUSVoltage() const {
-    return u82f(i2cRegs.fields.vbusVoltage, 0.0f, 5.5f);
-}
-
-float i2c2::ChargeCurrent() const {
-    return u82f(i2cRegs.fields.chargeCurrent, 0.0f, 1000.0f);
-}
-
-float i2c2::Temperature() const {
-    return u82f(i2cRegs.fields.temperature, 0.0f, 50.0f);
-}
-
-float i2c2::Humidity() const {
-    return u82f(i2cRegs.fields.humidity, 0.0f, 1.0f);
-}
-
-const uint8_t *i2c2::encodeForLora(uint8_t &len, uint8_t &port) {
-
-    static OutBitStream<128> bitstream;
-
-    int8_t dataRate = DR_0;
-    LmHandlerGetTxDatarate(&dataRate);
-
-    bitstream.Reset();
-
-    if (dataRate == DR_0) {
-        port = 1;
-
-        bitstream.PutUint16LE(i2cRegs.fields.systemTime);
-
-        bitstream.PutUint8(i2cRegs.fields.effectN);
-        bitstream.PutUint8(i2cRegs.fields.temperature);
-        bitstream.PutUint8(i2cRegs.fields.humidity);
-        bitstream.PutUint8(i2cRegs.fields.batteryVoltage);
-
-    } else { // > DR_0
-        port = 2;
-
-        bitstream.PutUint16LE(i2cRegs.fields.systemTime);
-
-        bitstream.PutUint8(i2cRegs.fields.status);
-        bitstream.PutUint8(i2cRegs.fields.effectN);
-        bitstream.PutUint8(i2cRegs.fields.brightness);
-        bitstream.PutUint8(i2cRegs.fields.batteryVoltage);
-        bitstream.PutUint8(i2cRegs.fields.systemVoltage);
-        bitstream.PutUint8(i2cRegs.fields.vbusVoltage);
-        bitstream.PutUint8(i2cRegs.fields.chargeCurrent);
-        bitstream.PutUint8(i2cRegs.fields.temperature);
-        bitstream.PutUint8(i2cRegs.fields.humidity);
-
-        static uint32_t counter = 0;
-
-        if ((++counter % 16) == 0) {
-            port = 3;
-
-            bitstream.PutUint8(i2cRegs.fields.ring_color[0]);
-            bitstream.PutUint8(i2cRegs.fields.ring_color[1]);
-            bitstream.PutUint8(i2cRegs.fields.ring_color[2]);
-            bitstream.PutUint8(i2cRegs.fields.ring_color[3]);
-
-            bitstream.PutUint8(i2cRegs.fields.bird_color[0]);
-            bitstream.PutUint8(i2cRegs.fields.bird_color[1]);
-            bitstream.PutUint8(i2cRegs.fields.bird_color[2]);
-            bitstream.PutUint8(i2cRegs.fields.bird_color[3]);
-
-            bitstream.PutUint16LE(i2cRegs.fields.switch1Count);
-            bitstream.PutUint16LE(i2cRegs.fields.switch2Count);
-            bitstream.PutUint16LE(i2cRegs.fields.switch3Count);
-            bitstream.PutUint16LE(i2cRegs.fields.bootCount);
-            bitstream.PutUint16LE(i2cRegs.fields.intCount);
-            bitstream.PutUint16LE(i2cRegs.fields.dselCount);
-        }
-    }
-
-    bitstream.FlushBits();
-
-    len = uint8_t(bitstream.Position());
-
-    printf("Time: %d Data Size: %d Port: %d BatteryVoltage %f\r\n", int(i2cRegs.fields.systemTime), int(len), int(port), double(BatteryVoltage()));
-
-    return bitstream.Buffer();
-}
-
-int i2c2::slave_process_addr_match(int) {
+int i2c2::peripheral_process_addr_match(int) {
     switch(i2cStatus) {
         case Stop: {
             i2cStatus = WaitAddr;
@@ -322,7 +241,7 @@ int i2c2::slave_process_addr_match(int) {
     return 0;
 }
 
-void i2c2::slave_process_rx_byte(uint8_t val) {
+void i2c2::peripheral_process_rx_byte(uint8_t val) {
     switch(i2cStatus) {
         case Stop:
         case WaitAddr: {
@@ -338,16 +257,20 @@ void i2c2::slave_process_rx_byte(uint8_t val) {
     }
 }
 
-void i2c2::slave_process_rx_end(void) {
+void i2c2::peripheral_process_rx_end(void) {
     i2cReg = 0;
     i2cStatus = Stop;
 }
 
-uint8_t i2c2::slave_process_tx_byte(void) {
+uint8_t i2c2::peripheral_process_tx_byte(void) {
     switch(i2cStatus) {
         case Stop: // Assume we want register 0
         case WaitAddr: // Assume we want register 0
         case HaveAddr: {
+            // Update fields when we start to read from register 0 and forward
+            if (i2cReg == 0) {
+                updateDynamicPeripheralFields();
+            }
             static_assert(sizeof(i2cRegs.regs) == 256 && 
                           std::is_same<decltype(i2cReg), uint8_t>::value);
             return i2cRegs.regs[i2cReg++];
@@ -358,23 +281,23 @@ uint8_t i2c2::slave_process_tx_byte(void) {
     return 0;
 }
 
-void i2c2::slave_process_tx_end(void) {
+void i2c2::peripheral_process_tx_end(void) {
     i2cReg = 0;
     i2cStatus = Stop;
 }
 
-void i2c2::slave_ev_irq_handler() {
+void i2c2::peripheral_ev_irq_handler() {
     uint32_t isr = I2C2->ISR;
     if ((isr & I2C_ISR_ADDR) != 0) {
         I2C2->ISR = I2C_ISR_TXE; // critical
         I2C2->ICR = I2C_ICR_ADDRCF;
-        slave_process_addr_match(0);
+        peripheral_process_addr_match(0);
     }
     if ((isr & I2C_ISR_TXIS) != 0) {
-        I2C2->TXDR = slave_process_tx_byte();
+        I2C2->TXDR = peripheral_process_tx_byte();
     }
     if ((isr & I2C_ISR_RXNE) != 0) {
-        slave_process_rx_byte(I2C2->RXDR);
+        peripheral_process_rx_byte(I2C2->RXDR);
     }
     if ((isr & I2C_ISR_NACKF) != 0) {
         I2C2->ICR = I2C_ICR_NACKCF;
@@ -383,15 +306,15 @@ void i2c2::slave_ev_irq_handler() {
         I2C2->ICR = I2C_ICR_STOPCF;
         I2C2->OAR1 &= ~I2C_OAR1_OA1EN;
         if (I2C2->ISR & I2C_ISR_DIR) {
-            slave_process_tx_end();
+            peripheral_process_tx_end();
         } else {
-            slave_process_rx_end();
+            peripheral_process_rx_end();
         }
         I2C2->OAR1 |= I2C_OAR1_OA1EN;
     }
 }
 
-void i2c2::slave_err_irq_handler() {
+void i2c2::peripheral_err_irq_handler() {
     uint32_t isr = I2C2->ISR;
     if ((isr & I2C_ISR_ARLO) != 0) {
         I2C2->ICR = I2C_ICR_ARLOCF;

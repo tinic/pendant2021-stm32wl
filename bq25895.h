@@ -29,15 +29,15 @@ class BQ25895 {
 public:
     static BQ25895 &instance();
 
-    void UpdateState();
+    void update();
 
-    uint8_t Status() const { return status; }
-    uint8_t FaultState() const { return faultState; }
+    uint8_t Status() const { return statusRaw; }
+    uint8_t FaultState() const { return faultStateRaw; }
 
-    float BatteryVoltage() const { return batteryVoltage; }
-    float SystemVoltage() const { return systemVoltage; }
-    float VBUSVoltage() const { return vbusVoltage; }
-    float ChargeCurrent() const { return chargeCurrent; }
+    float BatteryVoltage() const { return 2.304f + ( static_cast<float>(batteryVoltageRaw) * 2.540f ) * ( 1.0f / 127.0f); }
+    float SystemVoltage() const { return 2.304f + ( static_cast<float>(systemVoltageRaw) * 2.540f ) * ( 1.0f / 127.0f); }
+    float VBUSVoltage() const { return 2.6f + ( static_cast<float>(vbusVoltageRaw) * 12.7f ) * ( 1.0f / 127.0f); }
+    float ChargeCurrent() const { return ( static_cast<float>(chargeCurrentRaw) * 6350.0f ) * ( 1.0f / 127.0f); }
 
     enum {
         VBUS_NO_INPUT       = 0b000,
@@ -50,7 +50,7 @@ public:
         VBUS_OTG            = 0b111
     };
 
-    uint8_t VBUSStatus() const { return (status >> 5) & 0x7; }
+    uint8_t VBUSStatus() const { return (statusRaw >> 5) & 0x7; }
 
     enum {
         NOT_CHARGING        = 0b00,
@@ -59,24 +59,21 @@ public:
         TERM_CHARGING       = 0b11,
     };
 
-    uint8_t ChargeStatus() const { return (status >> 3) & 0x3; }
+    uint8_t ChargeStatus() const { return (statusRaw >> 3) & 0x3; }
 
 private:
     friend class i2c1;
+    friend class i2c2;
+
     static constexpr uint8_t i2c_addr = 0x6a;
     static bool devicePresent;
 
-    float batteryVoltage = 0;
-    float systemVoltage = 0;
-    float vbusVoltage = 0;
-    float chargeCurrent = 0;
-    uint8_t status = 0;
-    uint8_t faultState = 0;
-
-    float ReadBatteryVoltage();
-    float ReadSystemVoltage();
-    float ReadVBUSVoltage();
-    float ReadChargeCurrent();
+    uint8_t batteryVoltageRaw = 0;
+    uint8_t systemVoltageRaw = 0;
+    uint8_t vbusVoltageRaw = 0;
+    uint8_t chargeCurrentRaw = 0;
+    uint8_t statusRaw = 0;
+    uint8_t faultStateRaw = 0;
 
     void DisableWatchdog();
     void DisableOTG();

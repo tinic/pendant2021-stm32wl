@@ -52,41 +52,6 @@ void BQ25895::EnableOTG() {
     i2c1::instance().setReg8Bits(i2c_addr, 0x03, (1 << 5));
 }
 
-float BQ25895::ReadBatteryVoltage() {
-    if (!devicePresent) return 0;
-    uint8_t reg = i2c1::instance().getReg8(i2c_addr,0x0E) & 0x7F;
-    return 2.304f + ( static_cast<float>(reg) * 2.540f ) * ( 1.0f / 127.0f);
-}
-
-float BQ25895::ReadSystemVoltage() {
-    if (!devicePresent) return 0;
-    uint8_t reg = i2c1::instance().getReg8(i2c_addr,0x0F) & 0x7F;
-    return 2.304f + ( static_cast<float>(reg) * 2.540f ) * ( 1.0f / 127.0f);
-}
-
-float BQ25895::ReadVBUSVoltage() {
-    if (!devicePresent) return 0;
-    uint8_t reg = i2c1::instance().getReg8(i2c_addr,0x11) & 0x7F;
-    return 2.6f + ( static_cast<float>(reg) * 12.7f ) * ( 1.0f / 127.0f);
-}
-
-float BQ25895::ReadChargeCurrent() {
-    if (!devicePresent) return 0;
-    uint8_t reg = i2c1::instance().getReg8(i2c_addr,0x12) & 0x7F;
-    return ( static_cast<float>(reg) * 6350.0f ) * ( 1.0f / 127.0f);
-}
-
-void BQ25895::UpdateState() {
-    if (!devicePresent) return;
-    status = i2c1::instance().getReg8(i2c_addr, 0x0B);
-    faultState = i2c1::instance().getReg8(i2c_addr, 0x0C);
-    batteryVoltage = ReadBatteryVoltage();
-    systemVoltage = ReadSystemVoltage();
-    vbusVoltage = ReadVBUSVoltage();
-    chargeCurrent = ReadChargeCurrent();
-    OneShotADC();
-}
-
 void BQ25895::SetMinSystemVoltage (uint32_t voltageMV) {
     uint8_t reg =i2c1::instance().getReg8(i2c_addr, 0x03);
     if ((voltageMV >= 3000) && (voltageMV <= 3700)) {
@@ -154,6 +119,17 @@ void BQ25895::ForceDPDMDetection() {
     i2c1::instance().setReg8Bits(i2c_addr, 0x02, (1 << 1));
 }
 
+void BQ25895::update() {
+    if (!devicePresent) return;
+    statusRaw = i2c1::instance().getReg8(i2c_addr, 0x0B);
+    faultStateRaw = i2c1::instance().getReg8(i2c_addr, 0x0C);
+    batteryVoltageRaw = i2c1::instance().getReg8(i2c_addr,0x0E) & 0x7F;
+    systemVoltageRaw = i2c1::instance().getReg8(i2c_addr,0x0F) & 0x7F;
+    vbusVoltageRaw = i2c1::instance().getReg8(i2c_addr,0x11) & 0x7F;
+    chargeCurrentRaw = i2c1::instance().getReg8(i2c_addr,0x12) & 0x7F;
+    OneShotADC();
+}
+
 void BQ25895::stats() {
     printf("Battery Voltage: %g\r\n", double(BatteryVoltage()));
     printf("System Voltage: %g\r\n", double(SystemVoltage()));
@@ -171,6 +147,6 @@ void BQ25895::init() {
     SetMinSystemVoltage(3500);
     SetInputCurrent(1000);
     ForceDPDMDetection();
-    UpdateState();
+    update();
     stats();
 } 

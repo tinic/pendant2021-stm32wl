@@ -47,8 +47,8 @@
 
 /* Private function prototypes -----------------------------------------------*/
 /* USER CODE BEGIN PFP */
-void i2c2_slave_ev_irq_handler(void);
-void i2c2_slave_err_irq_handler(void);
+void i2c2_peripheral_ev_irq_handler(void);
+void i2c2_peripheral_err_irq_handler(void);
 /* USER CODE END PFP */
 
 /* Private user code ---------------------------------------------------------*/
@@ -267,7 +267,7 @@ void I2C2_EV_IRQHandler(void)
 {
   /* USER CODE BEGIN I2C2_EV_IRQn 0 */
 #ifdef USER_APP_BUILD
-  i2c2_slave_ev_irq_handler();
+  i2c2_peripheral_ev_irq_handler();
 #endif  // #ifdef USER_APP_BUILD
 
   /* USER CODE END I2C2_EV_IRQn 0 */
@@ -284,7 +284,7 @@ void I2C2_ER_IRQHandler(void)
 {
   /* USER CODE BEGIN I2C2_ER_IRQn 0 */
 #ifdef USER_APP_BUILD
-  i2c2_slave_err_irq_handler();
+  i2c2_peripheral_err_irq_handler();
 #endif  // #ifdef USER_APP_BUILD
 
   /* USER CODE END I2C2_ER_IRQn 0 */

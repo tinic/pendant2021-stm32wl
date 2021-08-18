@@ -219,6 +219,31 @@ float MMC5633NJL::temperature() const {
     return (float(mmc5633njlRegs.fields.Tout) * (1.0f/1.25f)) + 75.0f;
 }
 
+uint32_t MMC5633NJL::XGRaw() const {
+    return (
+        (uint32_t(mmc5633njlRegs.fields.Xout0) << 12)|
+        (uint32_t(mmc5633njlRegs.fields.Xout1) <<  4)|
+        (uint32_t(mmc5633njlRegs.fields.Xout2) <<  0));
+}
+
+uint32_t MMC5633NJL::YGRaw() const {
+    return (
+        (uint32_t(mmc5633njlRegs.fields.Yout0) << 12)|
+        (uint32_t(mmc5633njlRegs.fields.Yout1) <<  4)|
+        (uint32_t(mmc5633njlRegs.fields.Yout2) <<  0));
+}
+
+uint32_t MMC5633NJL::ZGRaw() const {
+    return (
+        (uint32_t(mmc5633njlRegs.fields.Zout0) << 12)|
+        (uint32_t(mmc5633njlRegs.fields.Zout1) <<  4)|
+        (uint32_t(mmc5633njlRegs.fields.Zout2) <<  0));
+}
+
+uint8_t MMC5633NJL::temperatureRaw() const {
+    return (mmc5633njlRegs.fields.Tout);
+}
+
 void MMC5633NJL::stats() {
     printf("MMC5633NJL (temperature: %fC)\r\n", double(temperature()));
     printf("MMC5633NJL (X: %fG) (Y: %fG) (Z: %fG)\r\n", double(X()),  double(Y()), double(Z()));

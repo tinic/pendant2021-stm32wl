@@ -34,12 +34,17 @@ public:
     float X() const;
     float Y() const;
     float Z() const;
-
     float temperature() const;
+
+    uint32_t XGRaw() const;
+    uint32_t YGRaw() const;
+    uint32_t ZGRaw() const;
+    uint8_t temperatureRaw() const;
 
 private:
 
     friend class i2c1;
+    friend class i2c2;
     static constexpr uint8_t i2c_addr = 0x30;
     static bool devicePresent;
 
