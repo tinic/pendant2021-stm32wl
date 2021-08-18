@@ -76,7 +76,7 @@ static void MX_I2C2_Init(void);
 static void MX_I2S2_Init(void);
 static void MX_RNG_Init(void);
 /* USER CODE BEGIN PFP */
-
+static void MX_GPIO_Init_Ext(void);
 /* USER CODE END PFP */
 
 /* Private user code ---------------------------------------------------------*/
@@ -160,6 +160,7 @@ int main(void)
   MX_LoRaWAN_Init();
   MX_RNG_Init();
   /* USER CODE BEGIN 2 */
+  MX_GPIO_Init_Ext();
 #ifdef USER_APP_BUILD
   system_init();
 #endif // #ifdef USER_APP_BUILD
@@ -671,7 +672,15 @@ static void MX_GPIO_Init(void)
 }
 
 /* USER CODE BEGIN 4 */
-
+static void MX_GPIO_Init_Ext(void)
+{
+  GPIO_InitTypeDef GPIO_InitStruct = {0};
+  /*Configure GPIO pin : VDD30_SW_Pin */
+  GPIO_InitStruct.Pin = VDD30_SW_Pin;
+  GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
+  GPIO_InitStruct.Pull = GPIO_PULLDOWN;
+  HAL_GPIO_Init(VDD30_SW_GPIO_Port, &GPIO_InitStruct);
+}
 /* USER CODE END 4 */
 
 /**

@@ -76,7 +76,8 @@ void   MX_USART2_UART_Init(void);
 void   MX_SUBGHZ_Init(void);
 void   MX_ADC_Init(void);
 /* USER CODE BEGIN Private defines */
-
+#define VDD30_SW_Pin GPIO_PIN_3
+#define VDD30_SW_GPIO_Port GPIOA
 /* USER CODE END Private defines */
 
 #ifdef __cplusplus

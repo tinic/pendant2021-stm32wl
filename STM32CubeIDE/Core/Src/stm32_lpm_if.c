@@ -93,9 +93,7 @@ void PWR_ExitOffMode(void)
 void PWR_EnterStopMode(void)
 {
   /* USER CODE BEGIN EnterStopMode_1 */
-  HAL_SuspendTick();
-  LL_PWR_ClearFlag_C1STOP_C1STB();
-  HAL_PWREx_EnterSTOP2Mode(PWR_STOPENTRY_WFI);
+
   /* USER CODE END EnterStopMode_1 */
   HAL_SuspendTick();
   /* Clear Status Flag before entering STOP/STANDBY Mode */
@@ -113,7 +111,7 @@ void PWR_EnterStopMode(void)
 void PWR_ExitStopMode(void)
 {
   /* USER CODE BEGIN ExitStopMode_1 */
-  HAL_ResumeTick();
+
   /* USER CODE END ExitStopMode_1 */
   /* Resume sysTick : work around for debugger problem in dual core */
   HAL_ResumeTick();
@@ -132,8 +130,7 @@ void PWR_ExitStopMode(void)
 void PWR_EnterSleepMode(void)
 {
   /* USER CODE BEGIN EnterSleepMode_1 */
-  HAL_SuspendTick();
-  HAL_PWR_EnterSLEEPMode(PWR_MAINREGULATOR_ON, PWR_SLEEPENTRY_WFI);
+
   /* USER CODE END EnterSleepMode_1 */
   /* Suspend sysTick */
   HAL_SuspendTick();
@@ -149,7 +146,7 @@ void PWR_EnterSleepMode(void)
 void PWR_ExitSleepMode(void)
 {
   /* USER CODE BEGIN ExitSleepMode_1 */
-  HAL_ResumeTick();
+
   /* USER CODE END ExitSleepMode_1 */
   /* Suspend sysTick */
   HAL_ResumeTick();
