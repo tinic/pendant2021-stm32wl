@@ -42,9 +42,11 @@ private:
     bool initialized = false;
     bool startedDMA = false;
 
-    static constexpr size_t transferSize = 1UL<<12; // 4K
+    static constexpr size_t sampleSize = 3; // 24-bit samples
+    static constexpr size_t transferSamples = 2048; 
+    static constexpr size_t transferByteSize = transferSamples * sampleSize; 
 
-    std::array<uint8_t, transferSize> data;
+    std::array<uint8_t, transferByteSize> data;
 };
 
 #endif /* _ICS43434_H_ */

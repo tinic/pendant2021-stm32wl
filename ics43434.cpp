@@ -49,7 +49,7 @@ void ICS43434::init() {
 }
 
 void ICS43434::update() {
-    if (1) { // TODO: check m482 VDD_SW pin
+    if (HAL_GPIO_ReadPin(VDD30_SW_GPIO_Port, VDD30_SW_Pin) == GPIO_PIN_RESET) {
         startedDMA = false;
     } else {
         startDMA();
@@ -57,7 +57,11 @@ void ICS43434::update() {
 }
 
 void ICS43434::completeDMA() {
-    startDMA();
+    if (!startedDMA) {
+        return;
+    }
+
+    HAL_I2S_Receive_DMA(&hi2s2, (uint16_t *)data.data(), transferSamples);
 }
 
 void ICS43434::startDMA() {
@@ -67,5 +71,5 @@ void ICS43434::startDMA() {
 
     startedDMA = true;
 
-    HAL_I2S_Receive_DMA(&hi2s2, (uint16_t *)data.data(), sizeof(data));
+    HAL_I2S_Receive_DMA(&hi2s2, (uint16_t *)data.data(), transferSamples);
 }
