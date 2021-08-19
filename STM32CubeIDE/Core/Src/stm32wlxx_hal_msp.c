@@ -67,8 +67,18 @@ void HAL_MspInit(void)
   /* USER CODE BEGIN MspInit 0 */
 
   /* USER CODE END MspInit 0 */
+  PWR_PVDTypeDef sConfigPVD = {0};
 
   /* System interrupt init*/
+
+  /** PVD Configuration
+  */
+  sConfigPVD.PVDLevel = PWR_PVDLEVEL_6;
+  sConfigPVD.Mode = PWR_PVD_MODE_IT_RISING_FALLING;
+  HAL_PWR_ConfigPVD(&sConfigPVD);
+  /** Enable the PVD Output
+  */
+  HAL_PWR_EnablePVD();
 
   /* USER CODE BEGIN MspInit 1 */
 
