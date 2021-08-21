@@ -153,15 +153,13 @@ i2c2 &i2c2::instance() {
     static i2c2 i;
     static bool init = false;
     if (!init) {
-        init = true;
         i.init();
+        init = true;
     }
     return i;
 }
 
 void i2c2::init() {
-    memset(this, 0, sizeof(i2c2));
-
     I2C2->CR1 = I2C_CR1_STOPIE | I2C_CR1_ADDRIE | I2C_CR1_RXIE | I2C_CR1_TXIE;
     I2C2->CR2 = 0;
     I2C2->OAR1 = I2C_OAR1_OA1EN | i2c_addr << 1;
