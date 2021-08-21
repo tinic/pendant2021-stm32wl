@@ -48,6 +48,8 @@ public:
     void update();
 
 private:
+    template<typename T> void checkReady();
+    template<typename T> void checkReadyReprobe();
 
     void init();
 };

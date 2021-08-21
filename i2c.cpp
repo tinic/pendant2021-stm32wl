@@ -53,6 +53,20 @@ void i2c2_peripheral_err_irq_handler() {
    
 };
 
+template<typename T> void i2c1::checkReady() {
+    if (!T::devicePresent) {
+        T::devicePresent = HAL_I2C_IsDeviceReady(&hi2c1, T::i2c_addr<<1, 8, HAL_MAX_DELAY) == HAL_OK;
+        if (T::devicePresent) printf("%s is ready.\r\n", T::str_id);
+    }
+}
+
+template<class T> void i2c1::checkReadyReprobe() {
+    if (!T::devicePresent) {
+        T::devicePresent = HAL_I2C_IsDeviceReady(&hi2c1, T::i2c_addr<<1, 8, HAL_MAX_DELAY) == HAL_OK;
+        if (T::devicePresent) printf("%s is is ready on reprobe.\r\n", T::str_id);
+    }
+}
+
 i2c1 &i2c1::instance() {
     static i2c1 i;
     static bool init = false;
@@ -66,50 +80,20 @@ i2c1 &i2c1::instance() {
 void i2c1::init() {
     memset(this, 0, sizeof(i2c1));
 
-    if (!BQ25895::devicePresent) {
-        BQ25895::devicePresent = HAL_I2C_IsDeviceReady(&hi2c1, BQ25895::i2c_addr<<1, 8, HAL_MAX_DELAY) == HAL_OK;
-        printf("BQ25895 is ready.\r\n");
-    }
-
-    if (!ENS210::devicePresent) {
-        ENS210::devicePresent = HAL_I2C_IsDeviceReady(&hi2c1, ENS210::i2c_addr<<1, 8, HAL_MAX_DELAY) == HAL_OK;
-        printf("ENS210 is ready.\r\n");
-    }
-
-    if (!LSM6DSM::devicePresent) {
-        LSM6DSM::devicePresent = HAL_I2C_IsDeviceReady(&hi2c1, LSM6DSM::i2c_addr<<1, 8, HAL_MAX_DELAY) == HAL_OK;
-        printf("LSM6DSM is ready.\r\n");
-    }
-
-    if (!MMC5633NJL::devicePresent) {
-        MMC5633NJL::devicePresent = HAL_I2C_IsDeviceReady(&hi2c1, MMC5633NJL::i2c_addr<<1, 8, HAL_MAX_DELAY) == HAL_OK;
-        printf("MMC5633NJL is ready.\r\n");
-    }
+    checkReady<BQ25895>();
+    checkReady<ENS210>();
+    checkReady<LSM6DSM>();
+    checkReady<MMC5633NJL>();
 
     update();
 }
 
 void i2c1::update() {
 
-    if (!BQ25895::devicePresent) {
-        BQ25895::devicePresent = HAL_I2C_IsDeviceReady(&hi2c1, BQ25895::i2c_addr<<1, 8, HAL_MAX_DELAY) == HAL_OK;
-        printf("BQ25895 is ready on reprobe.\r\n");
-    }
-
-    if (!ENS210::devicePresent) {
-        ENS210::devicePresent = HAL_I2C_IsDeviceReady(&hi2c1, ENS210::i2c_addr<<1, 8, HAL_MAX_DELAY) == HAL_OK;
-        printf("ENS210 is ready on reprobe.\r\n");
-    }
-
-    if (!LSM6DSM::devicePresent) {
-        LSM6DSM::devicePresent = HAL_I2C_IsDeviceReady(&hi2c1, LSM6DSM::i2c_addr<<1, 8, HAL_MAX_DELAY) == HAL_OK;
-        printf("LSM6DSM is ready on reprobe.\r\n");
-    }
-
-    if (!MMC5633NJL::devicePresent) {
-        MMC5633NJL::devicePresent = HAL_I2C_IsDeviceReady(&hi2c1, MMC5633NJL::i2c_addr<<1, 8, HAL_MAX_DELAY) == HAL_OK;
-        printf("MMC5633NJL is ready on reprobe.\r\n");
-    }
+    checkReadyReprobe<BQ25895>();
+    checkReadyReprobe<ENS210>();
+    checkReadyReprobe<LSM6DSM>();
+    checkReadyReprobe<MMC5633NJL>();
 
     if (BQ25895::devicePresent) {
         BQ25895::instance().update();
@@ -201,6 +185,9 @@ void i2c2::init() {
 }
 
 void i2c2::updateDynamicPeripheralFields() {
+
+    printf("updateDynamicPeripheralFields\r\n");
+
     // populate peripheral driven registers
     memcpy(&i2cRegs.fields.devEUI[0], SecureElementGetDevEui(), 8);
     memcpy(&i2cRegs.fields.joinEUI[0], SecureElementGetJoinEui(), 8);

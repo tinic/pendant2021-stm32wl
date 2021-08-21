@@ -45,7 +45,9 @@ private:
 
     friend class i2c1;
     friend class i2c2;
+
     static constexpr uint8_t i2c_addr = 0x30;
+    static constexpr const char *str_id = "MMC5633NJL";
     static bool devicePresent;
 
     void read();

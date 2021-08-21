@@ -66,6 +66,7 @@ private:
     friend class i2c2;
 
     static constexpr uint8_t i2c_addr = 0x6a;
+    static constexpr const char *str_id = "BQ25895";
     static bool devicePresent;
 
     uint8_t batteryVoltageRaw = 0;

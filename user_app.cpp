@@ -107,7 +107,7 @@ const uint8_t *lora_encode_packet(uint8_t *len, uint8_t *port) {
 
     *len = uint8_t(bitstream.Position());
 
-    printf("Time: %d Data Size: %d Port: %d BatteryVoltage %f\r\n", int(i2c2::instance().SystemTime()), int(len), int(port), double(BQ25895::instance().BatteryVoltage()));
+    printf("Time: %d Data Size: %d Port: %d BatteryVoltage %f\r\n", int(i2c2::instance().SystemTime()), int(*len), int(*port), double(BQ25895::instance().BatteryVoltage()));
 
     return bitstream.Buffer();
 }
