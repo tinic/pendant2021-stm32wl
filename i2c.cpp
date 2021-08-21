@@ -67,6 +67,12 @@ template<class T> void i2c1::checkReadyReprobe() {
     }
 }
 
+template<class T> void i2c1::update() {
+    if (T::devicePresent) {
+        T::instance().update();
+    }
+}
+
 i2c1 &i2c1::instance() {
     static i2c1 i;
     static bool init = false;
@@ -89,27 +95,15 @@ void i2c1::init() {
 }
 
 void i2c1::update() {
-
     checkReadyReprobe<BQ25895>();
     checkReadyReprobe<ENS210>();
     checkReadyReprobe<LSM6DSM>();
     checkReadyReprobe<MMC5633NJL>();
 
-    if (BQ25895::devicePresent) {
-        BQ25895::instance().update();
-    }
-
-    if (ENS210::devicePresent) {
-        ENS210::instance().update();
-    }
-
-    if (LSM6DSM::devicePresent) {
-        LSM6DSM::instance().update();
-    }
-
-    if (MMC5633NJL::devicePresent) {
-        MMC5633NJL::instance().update();
-    }
+    update<BQ25895>();
+    update<ENS210>();
+    update<LSM6DSM>();
+    update<MMC5633NJL>();
 }
 
 void i2c1::write(uint8_t peripheralAddr, uint8_t data[], size_t len) {
@@ -185,9 +179,6 @@ void i2c2::init() {
 }
 
 void i2c2::updateDynamicPeripheralFields() {
-
-    printf("updateDynamicPeripheralFields\r\n");
-
     // populate peripheral driven registers
     memcpy(&i2cRegs.fields.devEUI[0], SecureElementGetDevEui(), 8);
     memcpy(&i2cRegs.fields.joinEUI[0], SecureElementGetJoinEui(), 8);

@@ -50,6 +50,7 @@ public:
 private:
     template<typename T> void checkReady();
     template<typename T> void checkReadyReprobe();
+    template<class T> void update();
 
     void init();
 };
