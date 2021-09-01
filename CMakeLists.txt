@@ -165,5 +165,6 @@ add_custom_command(TARGET ${PROJECT_NAME}.elf POST_BUILD
     COMMAND ${CMAKE_SIZE} ${PROJECT_NAME}.elf
     COMMENT "Building ${HEX_FILE} \nBuilding ${BIN_FILE}")
     
-set(PROGRAM_CMD "openocd -f interface/stlink.cfg -f target/stm32wlx.cfg -c \"program ${PROJECT_NAME}.bin ${BASE_ADDRESS} verify reset exit\"")
-install(CODE "execute_process(COMMAND ${PROGRAM_CMD})")
+set(PROGRAM_CMD "./openocd -f stlink.cfg -f stm32wlx.cfg -c \"program ${PROJECT_BINARY_DIR}/${PROJECT_NAME}.bin ${BASE_ADDRESS} verify reset exit\"")
+install(CODE "execute_process(COMMAND ${PROGRAM_CMD} WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}/openocd)")
+    
