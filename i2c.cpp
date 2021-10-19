@@ -55,14 +55,14 @@ void i2c2_peripheral_err_irq_handler() {
 
 template<typename T> void i2c1::checkReady() {
     if (!T::devicePresent) {
-        T::devicePresent = HAL_I2C_IsDeviceReady(&hi2c1, T::i2c_addr<<1, 8, HAL_MAX_DELAY) == HAL_OK;
+        T::devicePresent = HAL_I2C_IsDeviceReady(&hi2c1, T::i2c_addr<<1, 8, 1000) == HAL_OK;
         if (T::devicePresent) printf("%s is ready.\r\n", T::str_id);
     }
 }
 
 template<class T> void i2c1::checkReadyReprobe() {
     if (!T::devicePresent) {
-        T::devicePresent = HAL_I2C_IsDeviceReady(&hi2c1, T::i2c_addr<<1, 8, HAL_MAX_DELAY) == HAL_OK;
+        T::devicePresent = HAL_I2C_IsDeviceReady(&hi2c1, T::i2c_addr<<1, 8, 1000) == HAL_OK;
         if (T::devicePresent) printf("%s is is ready on reprobe.\r\n", T::str_id);
     }
 }

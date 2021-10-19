@@ -244,6 +244,8 @@ void LSM6DSM::config(uint8_t _aScale, uint8_t _gScale, uint8_t _aodr, uint8_t _g
     i2c1::instance().setReg8(i2c_addr, LSM6DSM_DRDY_PULSE_CFG, 0x80); // latch interrupt until data read
     i2c1::instance().setReg8(i2c_addr, LSM6DSM_INT1_CTRL, 0x43);      // enable significant motion interrupts 
                                                                       // and accel/gyro data ready interrupts on INT1  
+
+    //i2c1::instance().setReg8(i2c_addr, LSM6DSM_CTRL4_C, 0x40);
 }
 
 void LSM6DSM::read() {

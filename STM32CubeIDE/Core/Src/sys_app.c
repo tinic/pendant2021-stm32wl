@@ -139,6 +139,7 @@ void SystemApp_Init(void)
 #error LOW_POWER_DISABLE not defined
 #endif /* LOW_POWER_DISABLE */
 
+#if LOW_POWER_DISABLE == 0
   /* USER CODE BEGIN SystemApp_Init_2 */
   // If our LEDs & 2nd MCU are on keep us in sleep mode.
   if (HAL_GPIO_ReadPin(VDD30_SW_GPIO_Port, VDD30_SW_Pin) == GPIO_PIN_SET) {
@@ -147,6 +148,7 @@ void SystemApp_Init(void)
     UTIL_LPM_SetStopMode((1 << CFG_LPM_APPLI_Id), UTIL_LPM_ENABLE);
   }
   /* USER CODE END SystemApp_Init_2 */
+#endif  // #if LOW_POWER_DISABLE == 0
 }
 
 /**
@@ -154,6 +156,7 @@ void SystemApp_Init(void)
   */
 void UTIL_SEQ_Idle(void)
 {
+#if LOW_POWER_DISABLE == 0
   /* USER CODE BEGIN UTIL_SEQ_Idle_1 */
   // If our LEDs & 2nd MCU are on keep us in sleep mode.
   if (HAL_GPIO_ReadPin(VDD30_SW_GPIO_Port, VDD30_SW_Pin) == GPIO_PIN_SET) {
@@ -161,6 +164,7 @@ void UTIL_SEQ_Idle(void)
   } else {
     UTIL_LPM_SetStopMode((1 << CFG_LPM_APPLI_Id), UTIL_LPM_ENABLE);
   }
+#endif  // #if LOW_POWER_DISABLE == 0
   /* USER CODE END UTIL_SEQ_Idle_1 */
   UTIL_LPM_EnterLowPower();
   /* USER CODE BEGIN UTIL_SEQ_Idle_2 */
