@@ -2,8 +2,8 @@
     "version": "0.2.0",
     "configurations": [
         {
-            "cwd": "${workspaceRoot}",
-            "executable": "build/pendant2021-stm32wl.elf",
+            "cwd": "${workspaceFolder}",
+            "executable": "${workspaceFolder}/build/pendant2021-stm32wl.elf",
             "name": "Debug",
             "request": "launch",
             "type": "cortex-debug",

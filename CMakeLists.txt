@@ -12,6 +12,7 @@ set(CC_FLAGS
     -fdata-sections
     -ffunction-sections
     -flto
+    -ffat-lto-objects
     -Wall
     -Wno-strict-aliasing 
     -Wno-format
@@ -32,6 +33,7 @@ set(CXX_FLAGS
 set(LD_FLAGS
     -T${CMAKE_SOURCE_DIR}/STM32CubeIDE/STM32WLE5CCUX_FLASH.ld
     -flto
+    -ffat-lto-objects
     -mcpu=cortex-m4
     -mthumb
     -mfloat-abi=soft
@@ -167,4 +169,3 @@ add_custom_command(TARGET ${PROJECT_NAME}.elf POST_BUILD
     
 set(PROGRAM_CMD "./openocd -f stlink.cfg -f stm32wlx.cfg -c \"program ${PROJECT_BINARY_DIR}/${PROJECT_NAME}.bin ${BASE_ADDRESS} verify reset exit\"")
 install(CODE "execute_process(COMMAND ${PROGRAM_CMD} WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}/openocd)")
-    
